@@ -9,7 +9,7 @@ You can install the Mantle App API library using npm:
 
 
 ```bash
-$ npm install analytics-node
+$ npm install @mantle/client
 ```
 
 ## Usage
