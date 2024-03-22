@@ -1,5 +1,5 @@
 
-# Mantle App API
+# Mantle App API Client
 
 A simple interface for interacting with the [Mantle](https://heymantle.com) App API.
 
@@ -9,7 +9,7 @@ You can install the Mantle App API library using npm:
 
 
 ```bash
-$ npm install @mantle/client
+$ npm install @heymantle/client
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ $ npm install @mantle/client
 The first thing you'll want to do is identify the customer/shop to Mantle using the `identify` endpoint:
 
 ```js
-const client = require('@mantle/client');
+const client = require('@heymantle/client');
 const client = new MantleClient({
   appId: process.env.MANTLE_APP_ID,
   apiKey: process.env.MANTLE_API_KEY,
@@ -47,7 +47,7 @@ Once identified, you can perform customer-specific operations:
 The primary way to authenticate is using the Mantle app ID and API key that you generate in the Mantle dashboard for a specific app. The API key should *never* be used in frontend code or code that will be exposed in the browser. Instead, you can use the customer API token returned from the `identify` request in frontend requests, but this is only secure when using it on frontend requests that are authenticated to that customer since it's exposing only their own token.
 
 ```js
-const client = require('@mantle/client');
+const client = require('@heymantle/client');
 const client = new MantleClient({
   appId: process.env.MANTLE_APP_ID,
   customerApiToken: shop.mantleApiToken,
