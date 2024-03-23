@@ -60,13 +60,14 @@ class MantleClient {
 
   /**
    * Identify the customer with Mantle. One of `platformId` or `myshopifyDomain` are required.
-   * @param {string} platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
-   * @param {string} myshopifyDomain - The myshopify.com domain of the Shopify store
-   * @param {string} [platform] - The platform the customer is on, defaults to shopify
-   * @param {string} accessToken - The access token for the platform API, for Shopify apps, this should be the Shop access token
-   * @param {string} name - The name of the customer
-   * @param {string} email - The email of the customer
-   * @param {Object.<string, Object>} [customFields] - Custom fields to store on the customer, must be a JSON object
+   * @param {Object} params
+   * @param {string} params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
+   * @param {string} params.myshopifyDomain - The myshopify.com domain of the Shopify store
+   * @param {string} [params.platform] - The platform the customer is on, defaults to shopify
+   * @param {string} params.accessToken - The access token for the platform API, for Shopify apps, this should be the Shop access token
+   * @param {string} params.name - The name of the customer
+   * @param {string} params.email - The email of the customer
+   * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
