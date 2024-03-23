@@ -41,7 +41,7 @@ class MantleClient {
    */
   async mantleRequest({ path, method = "GET", body }) {
     try {
-      const response = await fetch(`${this.apiUrl}/v1${path.startsWith('/') ? '' : '/'}${path}`, {
+      const response = await fetch(`${this.apiUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -93,6 +93,7 @@ class MantleClient {
    * Subscribe to a plan
    * @param {Object} params - The subscription options
    * @param {string} params.planId - The ID of the plan to subscribe to
+   * @param {string} params.discountId - The ID of the discount to apply to the subscription
    * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
    * @returns {Promise<Subscription>} a promise that resolves to the created subscription
    */
