@@ -96,11 +96,11 @@ class MantleClient {
    * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
    * @returns {Promise<Subscription>} a promise that resolves to the created subscription
    */
-  async subscribe({ planId, returnUrl }) {
+  async subscribe({ planId, discountId, returnUrl }) {
     return await this.mantleRequest({
       path: "subscriptions",
       method: "POST",
-      body: { planId, returnUrl },
+      body: { planId, discountId, returnUrl },
     });
   }
 
