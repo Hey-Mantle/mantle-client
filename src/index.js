@@ -1,3 +1,7 @@
+/**
+ * @module MantleClient
+ * @description A client for the Mantle API
+ */
 class MantleClient {
   /**
    * Creates a new MantleClient. If being used in the browser, or any frontend code, never use the apiKey parameter,
