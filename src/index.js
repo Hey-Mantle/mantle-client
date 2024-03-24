@@ -255,9 +255,9 @@ class MantleClient {
 
 /**
  * @typedef UsageEvent
- * @property {string} id - The ID of the usage event
- * @property {string} eventName - The name of the usage event
- * @property {string} customerId - The ID of the customer
+ * @property {string} [eventId] - The ID of the usage event. Will be generated if not provided
+ * @property {string} eventName - The name of the usage event, which can be tracked by usage metrics
+ * @property {string} customerId - The ID of the Mantle customer
  * @property {Object.<string, any>} properties - The properties of the usage event
  */
 

@@ -197,15 +197,15 @@ export type UsageCharge = {
 };
 export type UsageEvent = {
     /**
-     * - The ID of the usage event
+     * - The ID of the usage event. Will be generated if not provided
      */
-    id: string;
+    eventId?: string;
     /**
-     * - The name of the usage event
+     * - The name of the usage event, which can be tracked by usage metrics
      */
     eventName: string;
     /**
-     * - The ID of the customer
+     * - The ID of the Mantle customer
      */
     customerId: string;
     /**
