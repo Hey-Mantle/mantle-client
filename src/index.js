@@ -1,6 +1,6 @@
 /**
  * @module MantleClient
- * @description A client for the Mantle API
+ * @description The official NodeJS client for the Mantle App API
  */
 class MantleClient {
   /**
