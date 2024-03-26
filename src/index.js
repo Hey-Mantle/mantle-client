@@ -19,9 +19,6 @@ class MantleClient {
     if (typeof window !== "undefined" && apiKey) {
       throw new Error("MantleClient apiKey should never be used in the browser");
     }
-    if (!apiKey && !customerApiToken) {
-      throw new Error("MantleClient one of apiKey or customerApiToken is required");
-    }
 
     this.appId = appId;
     this.apiKey = apiKey;
