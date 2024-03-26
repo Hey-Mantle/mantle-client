@@ -1,12 +1,10 @@
-
-# Mantle App API Client
+# Mantle API Client for JavaScript
 
 A simple interface for interacting with the [Mantle](https://heymantle.com) App API.
 
 ## Installation
 
 You can install the Mantle App API library using npm:
-
 
 ```bash
 $ npm install @heymantle/client
