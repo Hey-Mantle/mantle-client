@@ -181,6 +181,42 @@ class MantleClient {
       },
     });
   }
+
+
+  /**
+   * Internally attempts to create a Stripe `SetupIntent` and returns a `clientSecret`, which can be used to initialize
+   * Stripe Elements or Stripe Checkout to collect payment method details to save for later use.
+   * @param {Object} params
+   * @param {string} [params.returnUrl] - The URL to redirect to after a checkout has completed
+   * @returns {Promise<SetupIntent>} a promise that resolves to the created `SetupIntent` with `clientSecret`
+   */
+  async requestClientSecret({ returnUrl }) {
+    return await this.mantleRequest({
+      resource: "payment_methods",
+      method: "GET",
+      ...(returnUrl && {
+        body: { returnUrl },
+      }),
+    });
+  }
+
+  /**
+   * Set the payment method for the current customer
+   * @param {Object} params - The payment method options
+   * @param {string} params.paymentMethodId - The platform ID of the payment method to add to the customer, ex. `pm_1234567890`
+   * @param {boolean} [params.defaultMethod=true] - Whether to set the payment method as the default for this customer
+   * @returns {Promise<PaymentMethod>} a promise that resolves to the updated payment method
+   */
+  async connectPaymentMethod({ paymentMethodId, defaultMethod = true }) {
+    return await this.mantleRequest({
+      resource: "payment_methods",
+      method: "PUT",
+      body: {
+        paymentMethodId,
+        defaultMethod,
+      },
+    });
+  }
 }
 
 /**
@@ -300,6 +336,22 @@ class MantleClient {
  * @property {Object.<string, Feature>} features - The features enabled for the current customer
  * @property {Object.<string, UsageMetric>} usage - The usage metrics for the current customer
  * @property {Object.<string, Object>} [customFields] - The custom fields on the customer
+ */
+
+/**
+ * @typedef PaymentMethod
+ * @property {string} id - The ID of the payment method
+ * @property {string} type - The type of the payment method
+ * @property {string} brand - The brand of the payment method
+ * @property {string} last4 - The last 4 digits of the payment method
+ * @property {string} expMonth - The expiration month of the payment method
+ * @property {string} expYear - The expiration year of the payment method
+ */
+
+/**
+ * @typedef SetupIntent
+ * @property {string} id - The ID of the setup intent
+ * @property {string} clientSecret - The client secret of the setup intent
  */
 
 module.exports = {
