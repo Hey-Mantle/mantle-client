@@ -29,14 +29,17 @@ class MantleClient {
   /**
    * Makes a request to the Mantle API
    * @param {Object} params
-   * @param {"customer"|"usage_events"|"subscriptions"} params.path - The path to request
+   * @param {"customer"|"usage_events"|"subscriptions"|"payment_methods"|"identify"} params.path - The path to the API endpoint
    * @param {"GET"|"POST"|"PUT"|"DELETE"} params.method - The HTTP method to use. Defaults to GET
    * @param {JSON} [params.body] - The request body
    * @returns {Promise<JSON>} a promise that resolves to the response body
    */
   async mantleRequest({ path, method = "GET", body }) {
     try {
-      const response = await fetch(`${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}`, {
+      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${
+        body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
+      }`;
+      const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -47,9 +50,10 @@ class MantleClient {
             ? { "X-Mantle-Customer-Api-Token": this.customerApiToken }
             : {}),
         },
-        ...(body && {
-          body: JSON.stringify(body),
-        }),
+        ...(body &&
+          method !== "GET" && {
+            body: JSON.stringify(body),
+          }),
       });
       const result = await response.json();
       return result;
@@ -182,7 +186,6 @@ class MantleClient {
     });
   }
 
-
   /**
    * Internally attempts to create a Stripe `SetupIntent` and returns a `clientSecret`, which can be used to initialize
    * Stripe Elements or Stripe Checkout to collect payment method details to save for later use.
@@ -192,7 +195,7 @@ class MantleClient {
    */
   async requestClientSecret({ returnUrl }) {
     return await this.mantleRequest({
-      resource: "payment_methods",
+      path: "payment_methods",
       method: "GET",
       ...(returnUrl && {
         body: { returnUrl },
@@ -209,7 +212,7 @@ class MantleClient {
    */
   async connectPaymentMethod({ paymentMethodId, defaultMethod = true }) {
     return await this.mantleRequest({
-      resource: "payment_methods",
+      path: "payment_methods",
       method: "PUT",
       body: {
         paymentMethodId,

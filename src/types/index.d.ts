@@ -422,13 +422,13 @@ export class MantleClient {
     /**
      * Makes a request to the Mantle API
      * @param {Object} params
-     * @param {"customer"|"usage_events"|"subscriptions"} params.path - The path to request
+     * @param {"customer"|"usage_events"|"subscriptions"|"payment_methods"|"identify"} params.path - The path to the API endpoint
      * @param {"GET"|"POST"|"PUT"|"DELETE"} params.method - The HTTP method to use. Defaults to GET
      * @param {JSON} [params.body] - The request body
      * @returns {Promise<JSON>} a promise that resolves to the response body
      */
     mantleRequest({ path, method, body }: {
-        path: "customer" | "usage_events" | "subscriptions";
+        path: "customer" | "usage_events" | "subscriptions" | "payment_methods" | "identify";
         method: "GET" | "POST" | "PUT" | "DELETE";
         body?: JSON;
     }): Promise<JSON>;
