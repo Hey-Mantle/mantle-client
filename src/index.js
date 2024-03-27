@@ -29,14 +29,17 @@ class MantleClient {
   /**
    * Makes a request to the Mantle API
    * @param {Object} params
-   * @param {"customer"|"usage_events"|"subscriptions"} params.path - The path to request
+   * @param {"customer"|"usage_events"|"subscriptions"|"payment_methods"|"identify"} params.path - The path to the API endpoint
    * @param {"GET"|"POST"|"PUT"|"DELETE"} params.method - The HTTP method to use. Defaults to GET
    * @param {JSON} [params.body] - The request body
    * @returns {Promise<JSON>} a promise that resolves to the response body
    */
   async mantleRequest({ path, method = "GET", body }) {
     try {
-      const response = await fetch(`${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}`, {
+      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${
+        body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
+      }`;
+      const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -47,9 +50,10 @@ class MantleClient {
             ? { "X-Mantle-Customer-Api-Token": this.customerApiToken }
             : {}),
         },
-        ...(body && {
-          body: JSON.stringify(body),
-        }),
+        ...(body &&
+          method !== "GET" && {
+            body: JSON.stringify(body),
+          }),
       });
       const result = await response.json();
       return result;
@@ -181,44 +185,61 @@ class MantleClient {
       },
     });
   }
+
+  /**
+   * Internally attempts to create a Stripe `SetupIntent` and returns a `clientSecret`, which can be used to initialize
+   * Stripe Elements or Stripe Checkout to collect payment method details to save for later use.
+   * @param {Object} params
+   * @param {string} [params.returnUrl] - The URL to redirect to after a checkout has completed
+   * @returns {Promise<SetupIntent>} a promise that resolves to the created `SetupIntent` with `clientSecret`
+   */
+  async requestClientSecret({ returnUrl }) {
+    return await this.mantleRequest({
+      path: "payment_methods",
+      method: "GET",
+      ...(returnUrl && {
+        body: { returnUrl },
+      }),
+    });
+  }
+
+  /**
+   * Set the payment method for the current customer
+   * @param {Object} params - The payment method options
+   * @param {string} params.paymentMethodId - The platform ID of the payment method to add to the customer, ex. `pm_1234567890`
+   * @param {boolean} [params.defaultMethod=true] - Whether to set the payment method as the default for this customer
+   * @returns {Promise<PaymentMethod>} a promise that resolves to the updated payment method
+   */
+  async connectPaymentMethod({ paymentMethodId, defaultMethod = true }) {
+    return await this.mantleRequest({
+      path: "payment_methods",
+      method: "PUT",
+      body: {
+        paymentMethodId,
+        defaultMethod,
+      },
+    });
+  }
 }
 
 /**
- * @typedef UsageMetric
- * @property {string} id - The ID of the usage metric
- * @property {string} name - The name of the usage metric
- * @property {string} eventName - The description of the usage metric
- * @property {number} currentValue - The current value of the usage metric
- * @property {number} [monthToDateValue] - The month to date value of the usage metric
- * @property {number} [last24HoursValue] - The last 24 hours value of the usage metric
- * @property {number} [last7DaysValue] - The last 7 days value of the usage metric
- * @property {number} [last30DaysValue] - The last 30 days value of the usage metric
- * @property {number} [last90DaysValue] - The last 90 days value of the usage metric
- * @property {number} [last365DaysValue] - The last 365 days value of the usage metric
- * @property {number} [allTimeValue] - The all time value of the usage metric
- * @property {UsageCharge} [usageCharge] - The usage charge of the usage metric
+ * @typedef Customer - The currently authenticated user of your app
+ * @property {string} id - The ID of the customer
+ * @property {boolean} test - Whether the customer is a test customer
+ * @property {Date} [installedAt] - The date the customer was first seen or installed
+ * @property {Date} [trialStartsAt] - If the customer has or had a trial, the date that it started
+ * @property {Date} [trialExpiresAt] - If the customer has or had a trial, the date that it ended
+ * @property {Array.<Plan>} plans - The plans available to the customer
+ * @property {Subscription} [subscription] - The subscription of the current customer, if any
+ * @property {PaymentMethod} [paymentMethod] - The payment method of the current customer, if any
+ * @property {Object.<string, Feature>} features - The features enabled for the current customer
+ * @property {Object.<string, UsageMetric>} usage - The usage metrics for the current customer
+ * @property {Object.<string, Object>} [customFields] - The custom fields on the customer
+ * @property {Array.<UsageCredit>} usageCredits - The usage credits of the customer
  */
 
 /**
- * @typedef Feature
- * @property {string} id - The ID of the feature
- * @property {string} name - The name of the feature
- * @property {"boolean"|"limit"|"limit_with_overage"} type - The description of the feature
- * @property {string} [description] - The description of the feature
- * @property {*} value - The value of the feature
- * @property {number} displayOrder - The display order of the feature
- */
-
-/**
- * @typedef AppliedDiscount
- * @property {string} id - The ID of the discount
- * @property {number} priceAfterDiscount - The price after discount
- * @property {Discount} discount - The discount
- * @property {string} [discountEndsAt] - The date the discount ends
- */
-
-/**
- * @typedef Subscription
+ * @typedef Subscription - The subscription of the current customer, if any
  * @property {string} id - The ID of the subscription
  * @property {Plan} plan - The plan of the subscription
  * @property {boolean} active - Whether the subscription is active
@@ -238,38 +259,7 @@ class MantleClient {
  */
 
 /**
- * @typedef UsageCharge
- * @property {string} id - The ID of the usage charge
- * @property {number} amount - The amount of the usage charge
- * @property {"unit"|"unit_limits"|"percent"} type - The type of the usage charge
- * @property {string} [terms] - The terms of the usage charge
- * @property {number} cappedAmount - The capped amount of the usage charge
- * @property {string} [eventName] - The event name of the usage charge
- * @property {string} [limitEventName] - The limit event name of the usage charge
- * @property {number} [limitMin] - The limit minimum of the usage charge
- * @property {number} [limitMax] - The limit maximum of the usage charge
- */
-
-/**
- * @typedef UsageEvent
- * @property {string} [eventId] - The ID of the usage event. Will be generated if not provided
- * @property {string} eventName - The name of the usage event, which can be tracked by usage metrics
- * @property {string} customerId - The ID of the Mantle customer
- * @property {Object.<string, any>} properties - The properties of the usage event
- */
-
-/**
- * @typedef Discount
- * @property {string} id - The ID of the discount
- * @property {number} [amount] - The amount of the discount
- * @property {string} [amountCurrencyCode] - The currency code of the discount amount
- * @property {number} [percentage] - The percentage of the discount
- * @property {number} [durationLimitInIntervals] - The duration limit of the discount in plan intervals
- * @property {number} discountedAmount - The discounted amount of plan after discount
- */
-
-/**
- * @typedef Plan
+ * @typedef Plan - Various details about a Mantle subscription plan
  * @property {string} id - The ID of the plan
  * @property {string} name - The name of the plan
  * @property {string} availability - The availability of the plan, one of "public", "customerTag", "customer", "shopifyPlan" or "hidden"
@@ -292,14 +282,97 @@ class MantleClient {
  */
 
 /**
- * @typedef Customer
- * @property {string} id - The ID of the customer
- * @property {boolean} test - Whether the customer is a test customer
- * @property {Array.<Plan>} plans - The plans available to the customer
- * @property {Subscription} [subscription] - The subscription of the current customer, if any
- * @property {Object.<string, Feature>} features - The features enabled for the current customer
- * @property {Object.<string, UsageMetric>} usage - The usage metrics for the current customer
- * @property {Object.<string, Object>} [customFields] - The custom fields on the customer
+ * @typedef PaymentMethod - The payment method of the current customer, if any
+ * @property {string} id - The ID of the payment method
+ * @property {string} type - The type of the payment method
+ * @property {string} brand - The brand of the payment method
+ * @property {string} last4 - The last 4 digits of the payment method
+ * @property {string} expMonth - The expiration month of the payment method
+ * @property {string} expYear - The expiration year of the payment method
+ */
+
+/**
+ * @typedef UsageMetric - Details about a current user's usage for a particular metric
+ * @property {string} id - The ID of the usage metric
+ * @property {string} name - The name of the usage metric
+ * @property {string} eventName - The description of the usage metric
+ * @property {number} currentValue - The current value of the usage metric
+ * @property {number} [monthToDateValue] - The month to date value of the usage metric
+ * @property {number} [last24HoursValue] - The last 24 hours value of the usage metric
+ * @property {number} [last7DaysValue] - The last 7 days value of the usage metric
+ * @property {number} [last30DaysValue] - The last 30 days value of the usage metric
+ * @property {number} [last90DaysValue] - The last 90 days value of the usage metric
+ * @property {number} [last365DaysValue] - The last 365 days value of the usage metric
+ * @property {number} [allTimeValue] - The all time value of the usage metric
+ * @property {UsageCharge} [usageCharge] - The usage charge of the usage metric
+ */
+
+/**
+ * @typedef Feature - Details about a feature of a plan or subscription
+ * @property {string} id - The ID of the feature
+ * @property {string} name - The name of the feature
+ * @property {"boolean"|"limit"|"limit_with_overage"} type - The description of the feature
+ * @property {string} [description] - The description of the feature
+ * @property {*} value - The value of the feature
+ * @property {number} displayOrder - The display order of the feature
+ */
+
+/**
+ * @typedef AppliedDiscount - The discount applied to a subscription
+ * @property {string} id - The ID of the discount
+ * @property {number} priceAfterDiscount - The price after discount
+ * @property {Discount} discount - The discount
+ * @property {string} [discountEndsAt] - The date the discount ends
+ */
+
+/**
+ * @typedef UsageCharge - Details about a usage charge for a plan or subscription
+ * @property {string} id - The ID of the usage charge
+ * @property {number} amount - The amount of the usage charge
+ * @property {"unit"|"unit_limits"|"percent"} type - The type of the usage charge
+ * @property {string} [terms] - The terms of the usage charge
+ * @property {number} cappedAmount - The capped amount of the usage charge
+ * @property {string} [eventName] - The event name of the usage charge
+ * @property {string} [limitEventName] - The limit event name of the usage charge
+ * @property {number} [limitMin] - The limit minimum of the usage charge
+ * @property {number} [limitMax] - The limit maximum of the usage charge
+ */
+
+/**
+ * @typedef UsageCredit - Details about a usage credit for a customer if one was created for them
+ * @property {string} id - The ID of the usage credit
+ * @property {string} name - The name of the usage credit
+ * @property {string} description - The description of the usage credit
+ * @property {number} amount - The original amount of the usage credit
+ * @property {number} balance - The remaining balance of the usage credit
+ * @property {string} currencyCode - The currency code of the usage credit
+ * @property {Date} [expiresAt] - The date the usage credit expires
+ * @property {Date} [createdAt] - The date the usage credit was created
+ * @property {Date} [updatedAt] - The date the usage credit was last updated
+ */
+
+/**
+ * @typedef UsageEvent - The model used to send usage events to Mantle. Useful for tracking usage metrics and doing metered billing
+ * @property {string} [eventId] - The ID of the usage event. Will be generated if not provided
+ * @property {string} eventName - The name of the usage event, which can be tracked by usage metrics
+ * @property {string} customerId - The ID of the Mantle customer
+ * @property {Object.<string, any>} properties - The properties of the usage event
+ */
+
+/**
+ * @typedef Discount - Details about a discount for a plan or subscription
+ * @property {string} id - The ID of the discount
+ * @property {number} [amount] - The amount of the discount
+ * @property {string} [amountCurrencyCode] - The currency code of the discount amount
+ * @property {number} [percentage] - The percentage of the discount
+ * @property {number} [durationLimitInIntervals] - The duration limit of the discount in plan intervals
+ * @property {number} discountedAmount - The discounted amount of plan after discount
+ */
+
+/**
+ * @typedef SetupIntent - Stripe SetupIntent model, used to collect payment method details for later use
+ * @property {string} id - The ID of the setup intent
+ * @property {string} clientSecret - The client secret of the setup intent
  */
 
 module.exports = {

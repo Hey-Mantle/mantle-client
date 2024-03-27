@@ -359,6 +359,42 @@ export type Customer = {
         [x: string]: any;
     };
 };
+export type PaymentMethod = {
+    /**
+     * - The ID of the payment method
+     */
+    id: string;
+    /**
+     * - The type of the payment method
+     */
+    type: string;
+    /**
+     * - The brand of the payment method
+     */
+    brand: string;
+    /**
+     * - The last 4 digits of the payment method
+     */
+    last4: string;
+    /**
+     * - The expiration month of the payment method
+     */
+    expMonth: string;
+    /**
+     * - The expiration year of the payment method
+     */
+    expYear: string;
+};
+export type SetupIntent = {
+    /**
+     * - The ID of the setup intent
+     */
+    id: string;
+    /**
+     * - The client secret of the setup intent
+     */
+    clientSecret: string;
+};
 /**
  * @module MantleClient
  * @description The official NodeJS client for the Mantle App API
@@ -386,13 +422,13 @@ export class MantleClient {
     /**
      * Makes a request to the Mantle API
      * @param {Object} params
-     * @param {"customer"|"usage_events"|"subscriptions"} params.path - The path to request
+     * @param {"customer"|"usage_events"|"subscriptions"|"payment_methods"|"identify"} params.path - The path to the API endpoint
      * @param {"GET"|"POST"|"PUT"|"DELETE"} params.method - The HTTP method to use. Defaults to GET
      * @param {JSON} [params.body] - The request body
      * @returns {Promise<JSON>} a promise that resolves to the response body
      */
     mantleRequest({ path, method, body }: {
-        path: "customer" | "usage_events" | "subscriptions";
+        path: "customer" | "usage_events" | "subscriptions" | "payment_methods" | "identify";
         method: "GET" | "POST" | "PUT" | "DELETE";
         body?: JSON;
     }): Promise<JSON>;
@@ -489,5 +525,26 @@ export class MantleClient {
     sendUsageEvents({ events }: {
         events: UsageEvent[];
     }): Promise<boolean>;
+    /**
+     * Internally attempts to create a Stripe `SetupIntent` and returns a `clientSecret`, which can be used to initialize
+     * Stripe Elements or Stripe Checkout to collect payment method details to save for later use.
+     * @param {Object} params
+     * @param {string} [params.returnUrl] - The URL to redirect to after a checkout has completed
+     * @returns {Promise<SetupIntent>} a promise that resolves to the created `SetupIntent` with `clientSecret`
+     */
+    requestClientSecret({ returnUrl }: {
+        returnUrl?: string;
+    }): Promise<SetupIntent>;
+    /**
+     * Set the payment method for the current customer
+     * @param {Object} params - The payment method options
+     * @param {string} params.paymentMethodId - The platform ID of the payment method to add to the customer, ex. `pm_1234567890`
+     * @param {boolean} [params.defaultMethod=true] - Whether to set the payment method as the default for this customer
+     * @returns {Promise<PaymentMethod>} a promise that resolves to the updated payment method
+     */
+    connectPaymentMethod({ paymentMethodId, defaultMethod }: {
+        paymentMethodId: string;
+        defaultMethod?: boolean;
+    }): Promise<PaymentMethod>;
 }
 //# sourceMappingURL=index.d.ts.map
