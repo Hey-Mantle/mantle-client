@@ -187,37 +187,22 @@ class MantleClient {
   }
 
   /**
-   * Internally attempts to create a Stripe `SetupIntent` and returns a `clientSecret`, which can be used to initialize
-   * Stripe Elements or Stripe Checkout to collect payment method details to save for later use.
+   * Initial step to start the process of connecting a new payment method from an external billing provider. 
+   * For Stripe billing, this creates a `SetupIntent` which contains a `clientSecret`, which can be used to initialize 
+   * Stripe Elements or Stripe Checkout, which is necessary to collect payment method details to save for later use, 
+   * or complete checkout without an active `PaymentIntent`. Do not store this `clientSecret` or share it with anyone,
+   * except for as part of the client-side payment method collection process.
    * @param {Object} params
    * @param {string} [params.returnUrl] - The URL to redirect to after a checkout has completed
    * @returns {Promise<SetupIntent>} a promise that resolves to the created `SetupIntent` with `clientSecret`
    */
-  async requestClientSecret({ returnUrl }) {
+  async addPaymentMethod({ returnUrl }) {
     return await this.mantleRequest({
       path: "payment_methods",
-      method: "GET",
+      method: "POST",
       ...(returnUrl && {
         body: { returnUrl },
       }),
-    });
-  }
-
-  /**
-   * Set the payment method for the current customer
-   * @param {Object} params - The payment method options
-   * @param {string} params.paymentMethodId - The platform ID of the payment method to add to the customer, ex. `pm_1234567890`
-   * @param {boolean} [params.defaultMethod=true] - Whether to set the payment method as the default for this customer
-   * @returns {Promise<PaymentMethod>} a promise that resolves to the updated payment method
-   */
-  async connectPaymentMethod({ paymentMethodId, defaultMethod = true }) {
-    return await this.mantleRequest({
-      path: "payment_methods",
-      method: "PUT",
-      body: {
-        paymentMethodId,
-        defaultMethod,
-      },
     });
   }
 }
