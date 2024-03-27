@@ -1,97 +1,65 @@
-export type UsageMetric = {
+/**
+ * - The currently authenticated user of your app
+ */
+export type Customer = {
     /**
-     * - The ID of the usage metric
+     * - The ID of the customer
      */
     id: string;
     /**
-     * - The name of the usage metric
+     * - Whether the customer is a test customer
      */
-    name: string;
+    test: boolean;
     /**
-     * - The description of the usage metric
+     * - The date the customer was first seen or installed
      */
-    eventName: string;
+    installedAt?: Date;
     /**
-     * - The current value of the usage metric
+     * - If the customer has or had a trial, the date that it started
      */
-    currentValue: number;
+    trialStartsAt?: Date;
     /**
-     * - The month to date value of the usage metric
+     * - If the customer has or had a trial, the date that it ended
      */
-    monthToDateValue?: number;
+    trialExpiresAt?: Date;
     /**
-     * - The last 24 hours value of the usage metric
+     * - The plans available to the customer
      */
-    last24HoursValue?: number;
+    plans: Array<Plan>;
     /**
-     * - The last 7 days value of the usage metric
+     * - The subscription of the current customer, if any
      */
-    last7DaysValue?: number;
+    subscription?: Subscription;
     /**
-     * - The last 30 days value of the usage metric
+     * - The payment method of the current customer, if any
      */
-    last30DaysValue?: number;
+    paymentMethod?: PaymentMethod;
     /**
-     * - The last 90 days value of the usage metric
+     * - The features enabled for the current customer
      */
-    last90DaysValue?: number;
+    features: {
+        [x: string]: Feature;
+    };
     /**
-     * - The last 365 days value of the usage metric
+     * - The usage metrics for the current customer
      */
-    last365DaysValue?: number;
+    usage: {
+        [x: string]: UsageMetric;
+    };
     /**
-     * - The all time value of the usage metric
+     * - The custom fields on the customer
      */
-    allTimeValue?: number;
+    customFields?: {
+        [x: string]: any;
+    };
     /**
-     * - The usage charge of the usage metric
+     * - The usage credits of the customer
      */
-    usageCharge?: UsageCharge;
+    usageCredits: Array<UsageCredit>;
 };
-export type Feature = {
-    /**
-     * - The ID of the feature
-     */
-    id: string;
-    /**
-     * - The name of the feature
-     */
-    name: string;
-    /**
-     * - The description of the feature
-     */
-    type: "boolean" | "limit" | "limit_with_overage";
-    /**
-     * - The description of the feature
-     */
-    description?: string;
-    /**
-     * - The value of the feature
-     */
-    value: any;
-    /**
-     * - The display order of the feature
-     */
-    displayOrder: number;
-};
-export type AppliedDiscount = {
-    /**
-     * - The ID of the discount
-     */
-    id: string;
-    /**
-     * - The price after discount
-     */
-    priceAfterDiscount: number;
-    /**
-     * - The discount
-     */
-    discount: Discount;
-    /**
-     * - The date the discount ends
-     */
-    discountEndsAt?: string;
-};
+/**
+ * - The subscription of the current customer, if any
+ */
 export type Subscription = {
     /**
      * - The ID of the subscription
@@ -157,90 +125,9 @@ export type Subscription = {
      */
     subtotal: number;
 };
-export type UsageCharge = {
-    /**
-     * - The ID of the usage charge
-     */
-    id: string;
-    /**
-     * - The amount of the usage charge
-     */
-    amount: number;
-    /**
-     * - The type of the usage charge
-     */
-    type: "unit" | "unit_limits" | "percent";
-    /**
-     * - The terms of the usage charge
-     */
-    terms?: string;
-    /**
-     * - The capped amount of the usage charge
-     */
-    cappedAmount: number;
-    /**
-     * - The event name of the usage charge
-     */
-    eventName?: string;
-    /**
-     * - The limit event name of the usage charge
-     */
-    limitEventName?: string;
-    /**
-     * - The limit minimum of the usage charge
-     */
-    limitMin?: number;
-    /**
-     * - The limit maximum of the usage charge
-     */
-    limitMax?: number;
-};
-export type UsageEvent = {
-    /**
-     * - The ID of the usage event. Will be generated if not provided
-     */
-    eventId?: string;
-    /**
-     * - The name of the usage event, which can be tracked by usage metrics
-     */
-    eventName: string;
-    /**
-     * - The ID of the Mantle customer
-     */
-    customerId: string;
-    /**
-     * - The properties of the usage event
-     */
-    properties: {
-        [x: string]: any;
-    };
-};
-export type Discount = {
-    /**
-     * - The ID of the discount
-     */
-    id: string;
-    /**
-     * - The amount of the discount
-     */
-    amount?: number;
-    /**
-     * - The currency code of the discount amount
-     */
-    amountCurrencyCode?: string;
-    /**
-     * - The percentage of the discount
-     */
-    percentage?: number;
-    /**
-     * - The duration limit of the discount in plan intervals
-     */
-    durationLimitInIntervals?: number;
-    /**
-     * - The discounted amount of plan after discount
-     */
-    discountedAmount: number;
-};
+/**
+ * - Various details about a Mantle subscription plan
+ */
 export type Plan = {
     /**
      * - The ID of the plan
@@ -323,42 +210,9 @@ export type Plan = {
      */
     updatedAt?: string;
 };
-export type Customer = {
-    /**
-     * - The ID of the customer
-     */
-    id: string;
-    /**
-     * - Whether the customer is a test customer
-     */
-    test: boolean;
-    /**
-     * - The plans available to the customer
-     */
-    plans: Array<Plan>;
-    /**
-     * - The subscription of the current customer, if any
-     */
-    subscription?: Subscription;
-    /**
-     * - The features enabled for the current customer
-     */
-    features: {
-        [x: string]: Feature;
-    };
-    /**
-     * - The usage metrics for the current customer
-     */
-    usage: {
-        [x: string]: UsageMetric;
-    };
-    /**
-     * - The custom fields on the customer
-     */
-    customFields?: {
-        [x: string]: any;
-    };
-};
+/**
+ * - The payment method of the current customer, if any
+ */
 export type PaymentMethod = {
     /**
      * - The ID of the payment method
@@ -385,6 +239,246 @@ export type PaymentMethod = {
      */
     expYear: string;
 };
+/**
+ * - Details about a current user's usage for a particular metric
+ */
+export type UsageMetric = {
+    /**
+     * - The ID of the usage metric
+     */
+    id: string;
+    /**
+     * - The name of the usage metric
+     */
+    name: string;
+    /**
+     * - The description of the usage metric
+     */
+    eventName: string;
+    /**
+     * - The current value of the usage metric
+     */
+    currentValue: number;
+    /**
+     * - The month to date value of the usage metric
+     */
+    monthToDateValue?: number;
+    /**
+     * - The last 24 hours value of the usage metric
+     */
+    last24HoursValue?: number;
+    /**
+     * - The last 7 days value of the usage metric
+     */
+    last7DaysValue?: number;
+    /**
+     * - The last 30 days value of the usage metric
+     */
+    last30DaysValue?: number;
+    /**
+     * - The last 90 days value of the usage metric
+     */
+    last90DaysValue?: number;
+    /**
+     * - The last 365 days value of the usage metric
+     */
+    last365DaysValue?: number;
+    /**
+     * - The all time value of the usage metric
+     */
+    allTimeValue?: number;
+    /**
+     * - The usage charge of the usage metric
+     */
+    usageCharge?: UsageCharge;
+};
+/**
+ * - Details about a feature of a plan or subscription
+ */
+export type Feature = {
+    /**
+     * - The ID of the feature
+     */
+    id: string;
+    /**
+     * - The name of the feature
+     */
+    name: string;
+    /**
+     * - The description of the feature
+     */
+    type: "boolean" | "limit" | "limit_with_overage";
+    /**
+     * - The description of the feature
+     */
+    description?: string;
+    /**
+     * - The value of the feature
+     */
+    value: any;
+    /**
+     * - The display order of the feature
+     */
+    displayOrder: number;
+};
+/**
+ * - The discount applied to a subscription
+ */
+export type AppliedDiscount = {
+    /**
+     * - The ID of the discount
+     */
+    id: string;
+    /**
+     * - The price after discount
+     */
+    priceAfterDiscount: number;
+    /**
+     * - The discount
+     */
+    discount: Discount;
+    /**
+     * - The date the discount ends
+     */
+    discountEndsAt?: string;
+};
+/**
+ * - Details about a usage charge for a plan or subscription
+ */
+export type UsageCharge = {
+    /**
+     * - The ID of the usage charge
+     */
+    id: string;
+    /**
+     * - The amount of the usage charge
+     */
+    amount: number;
+    /**
+     * - The type of the usage charge
+     */
+    type: "unit" | "unit_limits" | "percent";
+    /**
+     * - The terms of the usage charge
+     */
+    terms?: string;
+    /**
+     * - The capped amount of the usage charge
+     */
+    cappedAmount: number;
+    /**
+     * - The event name of the usage charge
+     */
+    eventName?: string;
+    /**
+     * - The limit event name of the usage charge
+     */
+    limitEventName?: string;
+    /**
+     * - The limit minimum of the usage charge
+     */
+    limitMin?: number;
+    /**
+     * - The limit maximum of the usage charge
+     */
+    limitMax?: number;
+};
+/**
+ * - Details about a usage credit for a customer if one was created for them
+ */
+export type UsageCredit = {
+    /**
+     * - The ID of the usage credit
+     */
+    id: string;
+    /**
+     * - The name of the usage credit
+     */
+    name: string;
+    /**
+     * - The description of the usage credit
+     */
+    description: string;
+    /**
+     * - The original amount of the usage credit
+     */
+    amount: number;
+    /**
+     * - The remaining balance of the usage credit
+     */
+    balance: number;
+    /**
+     * - The currency code of the usage credit
+     */
+    currencyCode: string;
+    /**
+     * - The date the usage credit expires
+     */
+    expiresAt?: Date;
+    /**
+     * - The date the usage credit was created
+     */
+    createdAt?: Date;
+    /**
+     * - The date the usage credit was last updated
+     */
+    updatedAt?: Date;
+};
+/**
+ * - The model used to send usage events to Mantle. Useful for tracking usage metrics and doing metered billing
+ */
+export type UsageEvent = {
+    /**
+     * - The ID of the usage event. Will be generated if not provided
+     */
+    eventId?: string;
+    /**
+     * - The name of the usage event, which can be tracked by usage metrics
+     */
+    eventName: string;
+    /**
+     * - The ID of the Mantle customer
+     */
+    customerId: string;
+    /**
+     * - The properties of the usage event
+     */
+    properties: {
+        [x: string]: any;
+    };
+};
+/**
+ * - Details about a discount for a plan or subscription
+ */
+export type Discount = {
+    /**
+     * - The ID of the discount
+     */
+    id: string;
+    /**
+     * - The amount of the discount
+     */
+    amount?: number;
+    /**
+     * - The currency code of the discount amount
+     */
+    amountCurrencyCode?: string;
+    /**
+     * - The percentage of the discount
+     */
+    percentage?: number;
+    /**
+     * - The duration limit of the discount in plan intervals
+     */
+    durationLimitInIntervals?: number;
+    /**
+     * - The discounted amount of plan after discount
+     */
+    discountedAmount: number;
+};
+/**
+ * - Stripe SetupIntent model, used to collect payment method details for later use
+ */
 export type SetupIntent = {
     /**
      * - The ID of the setup intent
