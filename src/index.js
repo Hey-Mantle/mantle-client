@@ -73,6 +73,7 @@ class MantleClient {
    * @param {string} params.name - The name of the customer
    * @param {string} params.email - The email of the customer
    * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
+   * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
@@ -83,11 +84,21 @@ class MantleClient {
     name,
     email,
     customFields,
+    createdAt,
   }) {
     return await this.mantleRequest({
       path: "identify",
       method: "POST",
-      body: { platformId, myshopifyDomain, platform, accessToken, name, email, customFields },
+      body: {
+        platformId,
+        myshopifyDomain,
+        platform,
+        accessToken,
+        name,
+        email,
+        customFields,
+        createdAt,
+      },
     });
   }
 
@@ -187,9 +198,9 @@ class MantleClient {
   }
 
   /**
-   * Initial step to start the process of connecting a new payment method from an external billing provider. 
-   * For Stripe billing, this creates a `SetupIntent` which contains a `clientSecret`, which can be used to initialize 
-   * Stripe Elements or Stripe Checkout, which is necessary to collect payment method details to save for later use, 
+   * Initial step to start the process of connecting a new payment method from an external billing provider.
+   * For Stripe billing, this creates a `SetupIntent` which contains a `clientSecret`, which can be used to initialize
+   * Stripe Elements or Stripe Checkout, which is necessary to collect payment method details to save for later use,
    * or complete checkout without an active `PaymentIntent`. Do not store this `clientSecret` or share it with anyone,
    * except for as part of the client-side payment method collection process.
    * @param {Object} params
