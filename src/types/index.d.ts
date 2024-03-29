@@ -555,9 +555,10 @@ export class MantleClient {
     }>;
     /**
      * Get the customer associated with the current customer API token
+     * @param {string} [id] - The ID of the customer to get. Only required if using the API key for authentication instead of the customer API token
      * @returns {Promise<Customer>} a promise that resolves to the current customer
      */
-    getCustomer(): Promise<Customer>;
+    getCustomer(id?: string): Promise<Customer>;
     /**
      * Subscribe to a plan, or list of plans. Must provide either `planId` or `planIds`
      * @param {Object} params - The subscription options

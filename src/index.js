@@ -104,10 +104,14 @@ class MantleClient {
 
   /**
    * Get the customer associated with the current customer API token
+   * @param {string} [id] - The ID of the customer to get. Only required if using the API key for authentication instead of the customer API token
    * @returns {Promise<Customer>} a promise that resolves to the current customer
    */
-  async getCustomer() {
-    return (await this.mantleRequest({ path: "customer" })).customer;
+  async getCustomer(id) {
+    return (await this.mantleRequest({
+      path: "customer",
+      ...(id ? { body: { id } } : {}),
+    })).customer;
   }
 
   /**
