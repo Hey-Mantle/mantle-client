@@ -15,7 +15,7 @@ $ npm install @heymantle/client
 The first thing you'll want to do is identify the customer/shop to Mantle using the `identify` endpoint:
 
 ```js
-const client = require('@heymantle/client');
+const { MantleClient } = require('@heymantle/client');
 const client = new MantleClient({
   appId: process.env.MANTLE_APP_ID,
   apiKey: process.env.MANTLE_API_KEY,
