@@ -641,6 +641,6 @@ export class MantleClient {
      * @param {string} period - The interval to get the report for, one of "daily", "weekly", "monthly"
      * @returns {Promise<Object>} a promise that resolves to the usage metric report
      */
-    getUsageMetricReport(id: any, period: string): Promise<any>;
+    getUsageMetricReport({ id, period }: any): Promise<any>;
 }
 //# sourceMappingURL=index.d.ts.map
