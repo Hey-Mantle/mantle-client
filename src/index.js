@@ -8,8 +8,8 @@ class MantleClient {
    * always use the customerApiToken for the customer that is currently authenticated on the frontend.
    * @param {Object} params
    * @param {string} params.appId - The Mantle App ID set up on your app in your Mantle account.
-   * @param {string} params.apiKey - The Mantle App API key set up on your app in your Mantle account. This should never be used in the browser.
-   * @param {string} params.customerApiToken - The Mantle Customer API Token returned by the /identify endpoint. This should be used in the browser.
+   * @param {string} [params.apiKey] - The Mantle App API key set up on your app in your Mantle account. This should never be used in the browser.
+   * @param {string} [params.customerApiToken] - The Mantle Customer API Token returned by the /identify endpoint. This should be used in the browser.
    * @param {string} [params.apiUrl] - The Mantle API URL to use
    */
   constructor({ appId, apiKey, customerApiToken, apiUrl = "https://appapi.heymantle.com/v1" }) {
@@ -30,7 +30,7 @@ class MantleClient {
    * Makes a request to the Mantle API
    * @param {Object} params
    * @param {"customer"|"usage_events"|"subscriptions"|"payment_methods"|"identify"} params.path - The path to the API endpoint
-   * @param {"GET"|"POST"|"PUT"|"DELETE"} params.method - The HTTP method to use. Defaults to GET
+   * @param {"GET"|"POST"|"PUT"|"DELETE"} [params.method] - The HTTP method to use. Defaults to GET
    * @param {JSON} [params.body] - The request body
    * @returns {Promise<JSON>} a promise that resolves to the response body
    */
@@ -66,12 +66,12 @@ class MantleClient {
   /**
    * Identify the customer with Mantle. One of `platformId` or `myshopifyDomain` are required.
    * @param {Object} params
-   * @param {string} params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
-   * @param {string} params.myshopifyDomain - The myshopify.com domain of the Shopify store
+   * @param {string} [params.platformId] - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
+   * @param {string} [params.myshopifyDomain] - The myshopify.com domain of the Shopify store
    * @param {string} [params.platform] - The platform the customer is on, defaults to shopify
-   * @param {string} params.accessToken - The access token for the platform API, for Shopify apps, this should be the Shop access token
-   * @param {string} params.name - The name of the customer
-   * @param {string} params.email - The email of the customer
+   * @param {string} [params.accessToken] - The access token for the platform API, for Shopify apps, this should be the Shop access token
+   * @param {string} [params.name] - The name of the customer
+   * @param {string} [params.email] - The email of the customer
    * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
    * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
@@ -117,9 +117,9 @@ class MantleClient {
   /**
    * Subscribe to a plan, or list of plans. Must provide either `planId` or `planIds`
    * @param {Object} params - The subscription options
-   * @param {string} params.planId - The ID of the plan to subscribe to
-   * @param {string[]} params.planIds - List of plan IDs to subscribe to
-   * @param {string} params.discountId - The ID of the discount to apply to the subscription
+   * @param {string} [params.planId] - The ID of the plan to subscribe to
+   * @param {string[]} [params.planIds] - List of plan IDs to subscribe to
+   * @param {string} [params.discountId] - The ID of the discount to apply to the subscription
    * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
    * @param {string} [params.billingProvider] - The name of the billing provider to use, if none is provided, use sensible default
    * @returns {Promise<Subscription>} a promise that resolves to the created subscription
@@ -168,8 +168,8 @@ class MantleClient {
    * @param {Object} params - The usage event options
    * @param {string} [params.eventId] - The ID of the event
    * @param {string} params.eventName - The name of the event which can be tracked by usage metrics
-   * @param {string} params.customerId - Required if customerApiToken is not used for authentication. One of either the customer token, Mantle customer ID, platform ID / Shopify Shop ID, Shopify myshopify.com domain
-   * @param {Object.<string, any>} params.properties - The event properties
+   * @param {string} [params.customerId] - Required if customerApiToken is not used for authentication. One of either the customer token, Mantle customer ID, platform ID / Shopify Shop ID, Shopify myshopify.com domain
+   * @param {Object.<string, any>} [params.properties] - The event properties
    * @returns {Promise<boolean>} true if the event was sent successfully
    */
   async sendUsageEvent({ eventId, eventName, customerId, properties = {} }) {
@@ -208,7 +208,7 @@ class MantleClient {
    * or complete checkout without an active `PaymentIntent`. Do not store this `clientSecret` or share it with anyone,
    * except for as part of the client-side payment method collection process.
    * @param {Object} params
-   * @param {string} [params.returnUrl] - The URL to redirect to after a checkout has completed
+   * @param {string} params.returnUrl - The URL to redirect to after a checkout has completed
    * @returns {Promise<SetupIntent>} a promise that resolves to the created `SetupIntent` with `clientSecret`
    */
   async addPaymentMethod({ returnUrl }) {
@@ -224,7 +224,7 @@ class MantleClient {
   /**
    * Get report of a usage metric over time intervals
    * @param {Object} id - The usage metric id
-   * @param {string} period - The interval to get the report for, one of "daily", "weekly", "monthly"
+   * @param {string} [period] - The interval to get the report for, one of "daily", "weekly", "monthly"
    * @returns {Promise<Object>} a promise that resolves to the usage metric report
    */
   async getUsageMetricReport({ id, period }) {
