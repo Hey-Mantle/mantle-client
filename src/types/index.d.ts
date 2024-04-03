@@ -635,5 +635,12 @@ export class MantleClient {
     addPaymentMethod({ returnUrl }: {
         returnUrl?: string;
     }): Promise<SetupIntent>;
+    /**
+     * Get report of a usage metric over time intervals
+     * @param {Object} id - The usage metric id
+     * @param {string} period - The interval to get the report for, one of "daily", "weekly", "monthly"
+     * @returns {Promise<Object>} a promise that resolves to the usage metric report
+     */
+    getUsageMetricReport(id: any, period: string): Promise<any>;
 }
 //# sourceMappingURL=index.d.ts.map
