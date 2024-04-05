@@ -85,6 +85,7 @@ class MantleClient {
     email,
     customFields,
     createdAt,
+    rotateApiToken,
   }) {
     return await this.mantleRequest({
       path: "identify",
@@ -98,6 +99,7 @@ class MantleClient {
         email,
         customFields,
         createdAt,
+        rotateApiToken,
       },
     });
   }

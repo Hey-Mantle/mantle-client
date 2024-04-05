@@ -539,7 +539,7 @@ export class MantleClient {
      * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
-    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, }: {
+    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, }: {
         platformId?: string;
         myshopifyDomain?: string;
         platform?: string;
