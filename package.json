@@ -1,12 +1,12 @@
 {
   "name": "@heymantle/client",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "Mantle API Client for JavaScript",
   "main": "src/index.js",
   "types": "src/types/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-and-publish": "npx tsc && npm publish"
+    "build-and-publish": "npm install && npx tsc && npm publish"
   },
   "author": "jnormore",
   "license": "ISC",
