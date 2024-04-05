@@ -537,6 +537,7 @@ export class MantleClient {
      * @param {string} [params.email] - The email of the customer
      * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
      * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
+     * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
     identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, }: {
@@ -550,6 +551,7 @@ export class MantleClient {
             [x: string]: any;
         };
         createdAt?: Date;
+        rotateApiToken?: boolean;
     }): Promise<{
         [x: string]: string;
     }>;
