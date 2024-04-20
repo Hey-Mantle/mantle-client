@@ -111,10 +111,12 @@ class MantleClient {
    * @returns {Promise<Customer>} a promise that resolves to the current customer
    */
   async getCustomer(id) {
-    return (await this.mantleRequest({
-      path: "customer",
-      ...(id ? { body: { id } } : {}),
-    })).customer;
+    return (
+      await this.mantleRequest({
+        path: "customer",
+        ...(id ? { body: { id } } : {}),
+      })
+    ).customer;
   }
 
   /**
@@ -125,13 +127,21 @@ class MantleClient {
    * @param {string} [params.discountId] - The ID of the discount to apply to the subscription
    * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
    * @param {string} [params.billingProvider] - The name of the billing provider to use, if none is provided, use sensible default
+   * @param {boolean} [params.useSavedPaymentMethod] - Whether to use the saved payment method for the subscription if available
    * @returns {Promise<Subscription>} a promise that resolves to the created subscription
    */
-  async subscribe({ planId, planIds, discountId, returnUrl, billingProvider }) {
+  async subscribe({
+    planId,
+    planIds,
+    discountId,
+    returnUrl,
+    billingProvider,
+    useSavedPaymentMethod = false,
+  }) {
     return await this.mantleRequest({
       path: "subscriptions",
       method: "POST",
-      body: { planId, planIds, discountId, returnUrl, billingProvider },
+      body: { planId, planIds, discountId, returnUrl, billingProvider, useSavedPaymentMethod },
     });
   }
 
@@ -255,6 +265,36 @@ class MantleClient {
  */
 
 /**
+ * @readonly
+ * @enum {string} SubscriptionConfirmType - The action that will have to take place after a subscription is initialized
+ */
+const SubscriptionConfirmType = {
+  /**
+   * The subscription was created and one of two things will happen:
+   * 1. If the subscription has a trial, the first invoice will be paid after the trial ends
+   * 2. If the subscription does not have a trial, the first invoice will be paid immediately
+   * In both cases, the consumer should redirect to the `returnUrl` provided with the subscription to activate the subscription
+   * @type {string}
+   */
+  finalize: "finalize",
+
+  /**
+   * The subscription was created with a trial. The consumer should pass the returned `clientSecret` to Stripe Elements in order
+   * to collect payment method details and complete the subscription. The consumer should pass the `returnUrl` to the
+   * `Stripe#confirmSetup` method to activate the subscription and vault the card. The first invoice will be paid after the trial ends.
+   * @type {string}
+   */
+  setup: "setup",
+
+  /**
+   * The subscription was created without a trial. The consumer should pass the returned `clientSecret` to Stripe Elements in order
+   * to collect payment method details and complete the subscription. The consumer should pass the `returnUrl` to the
+   * `Stripe#confirmPayment` method to activate the subscription and vault the card. The first invoice will be paid immediately.
+   */
+  subscribe: "subscribe",
+};
+
+/**
  * @typedef Subscription - The subscription of the current customer, if any
  * @property {string} id - The ID of the subscription
  * @property {Plan} plan - The plan of the subscription
@@ -267,6 +307,9 @@ class MantleClient {
  * @property {Array.<UsageCharge>} usageCharges - The usage charges of the subscription
  * @property {string} [createdAt] - The date the subscription was created
  * @property {URL} [confirmationUrl] - The URL to confirm the subscription
+ * @property {URL} [returnUrl] - The URL to return to after the subscription is complete
+ * @property {string} [clientSecret] - The client secret returned by the billing provider when creating the subscription
+ * @property {SubscriptionConfirmType} [confirmType] - The action that can be taken after a subscription is created
  * @property {number} [usageChargeCappedAmount] - The capped amount of the usage charge
  * @property {number} [usageBalanceUsed] - The amount of the usage balance used
  * @property {AppliedDiscount} [appliedDiscount]
@@ -393,4 +436,5 @@ class MantleClient {
 
 module.exports = {
   MantleClient,
+  SubscriptionConfirmType,
 };

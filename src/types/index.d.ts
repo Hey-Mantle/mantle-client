@@ -108,6 +108,18 @@ export type Subscription = {
      */
     confirmationUrl?: URL;
     /**
+     * - The URL to return to after the subscription is complete
+     */
+    returnUrl?: URL;
+    /**
+     * - The client secret returned by the billing provider when creating the subscription
+     */
+    clientSecret?: string;
+    /**
+     * - The action that can be taken after a subscription is created
+     */
+    confirmType?: SubscriptionConfirmType;
+    /**
      * - The capped amount of the usage charge
      */
     usageChargeCappedAmount?: number;
@@ -569,14 +581,16 @@ export class MantleClient {
      * @param {string} [params.discountId] - The ID of the discount to apply to the subscription
      * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
      * @param {string} [params.billingProvider] - The name of the billing provider to use, if none is provided, use sensible default
+     * @param {boolean} [params.useSavedPaymentMethod] - Whether to use the saved payment method for the subscription if available
      * @returns {Promise<Subscription>} a promise that resolves to the created subscription
      */
-    subscribe({ planId, planIds, discountId, returnUrl, billingProvider }: {
+    subscribe({ planId, planIds, discountId, returnUrl, billingProvider, useSavedPaymentMethod, }: {
         planId?: string;
         planIds?: string[];
         discountId?: string;
         returnUrl: string;
         billingProvider?: string;
+        useSavedPaymentMethod?: boolean;
     }): Promise<Subscription>;
     /**
      * Cancel the current subscription
@@ -644,5 +658,14 @@ export class MantleClient {
      * @returns {Promise<Object>} a promise that resolves to the usage metric report
      */
     getUsageMetricReport({ id, period }: any): Promise<any>;
+}
+/**
+ * SubscriptionConfirmType - The action that will have to take place after a subscription is initialized
+ */
+export type SubscriptionConfirmType = string;
+export namespace SubscriptionConfirmType {
+    let finalize: string;
+    let setup: string;
+    let subscribe: string;
 }
 //# sourceMappingURL=index.d.ts.map
