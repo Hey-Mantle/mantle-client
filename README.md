@@ -20,7 +20,7 @@ const client = new MantleClient({
   appId: process.env.MANTLE_APP_ID,
   apiKey: process.env.MANTLE_API_KEY,
 });
-const { apiToken: customerApiToken } = client.identify({
+const { apiToken: customerApiToken } = await client.identify({
   platform: 'shopify',
   platformId: shop.id,
   myshopifyDomain: shop.myshopifyDomain,
