@@ -75,6 +75,8 @@ class MantleClient {
    * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
    * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
    * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
+   * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
+   * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
@@ -87,6 +89,8 @@ class MantleClient {
     customFields,
     createdAt,
     rotateApiToken,
+    tags,
+    operators,
   }) {
     return await this.mantleRequest({
       path: "identify",
@@ -101,6 +105,8 @@ class MantleClient {
         customFields,
         createdAt,
         rotateApiToken,
+        tags,
+        operators,
       },
     });
   }
