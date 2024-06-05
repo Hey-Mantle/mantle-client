@@ -550,9 +550,11 @@ export class MantleClient {
      * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
      * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
      * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
+     * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
+     * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
-    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, }: {
+    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, tags, operators, }: {
         platformId?: string;
         myshopifyDomain?: string;
         platform?: string;
@@ -564,6 +566,10 @@ export class MantleClient {
         };
         createdAt?: Date;
         rotateApiToken?: boolean;
+        tags?: string[];
+        operators?: {
+            [x: string]: string;
+        };
     }): Promise<{
         [x: string]: string;
     }>;
@@ -657,7 +663,7 @@ export class MantleClient {
      * @param {string} [period] - The interval to get the report for, one of "daily", "weekly", "monthly"
      * @returns {Promise<Object>} a promise that resolves to the usage metric report
      */
-    getUsageMetricReport({ id, period }: any): Promise<any>;
+    getUsageMetricReport({ id, period, customerId }: any): Promise<any>;
 }
 /**
  * SubscriptionConfirmType - The action that will have to take place after a subscription is initialized
