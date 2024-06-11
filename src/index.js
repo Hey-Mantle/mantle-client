@@ -255,6 +255,23 @@ class MantleClient {
       },
     });
   }
+
+  /**
+   * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
+   * @param {string} type - The type of hosted session to create, one of "plans" or "account"
+   * @param {Object} config - The configuration for the hosted session
+   * @returns {Promise<Object>} a promise that resolves to the hosted session with a url property
+   */
+  async createHostedSession({ type, config }) {
+    return (await this.mantleRequest({
+      path: "hosted_sessions",
+      method: "POST",
+      body: {
+        type,
+        config,
+      },
+    })).session
+  }
 }
 
 /**

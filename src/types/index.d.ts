@@ -664,6 +664,13 @@ export class MantleClient {
      * @returns {Promise<Object>} a promise that resolves to the usage metric report
      */
     getUsageMetricReport({ id, period, customerId }: any): Promise<any>;
+    /**
+     * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
+     * @param {string} type - The type of hosted session to create, one of "plans" or "account"
+     * @param {Object} config - The configuration for the hosted session
+     * @returns {Promise<Object>} a promise that resolves to the hosted session with a url property
+     */
+    createHostedSession({ type, config }: string): Promise<any>;
 }
 /**
  * SubscriptionConfirmType - The action that will have to take place after a subscription is initialized
