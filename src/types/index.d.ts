@@ -502,6 +502,19 @@ export type SetupIntent = {
     clientSecret: string;
 };
 /**
+ * - The hosted session, used to send the customer to a hosted page to manage their subscription
+ */
+export type HostedSession = {
+    /**
+     * - The ID of the hosted session
+     */
+    id: string;
+    /**
+     * - The URL of the hosted session
+     */
+    url: string;
+};
+/**
  * @module MantleClient
  * @description The official NodeJS client for the Mantle App API
  */
@@ -666,11 +679,15 @@ export class MantleClient {
     getUsageMetricReport({ id, period, customerId }: any): Promise<any>;
     /**
      * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
-     * @param {string} type - The type of hosted session to create, one of "plans" or "account"
-     * @param {Object} config - The configuration for the hosted session
-     * @returns {Promise<Object>} a promise that resolves to the hosted session with a url property
+     * @param {Object} params - The hosted session options
+     * @param {string} params.type - The type of hosted session to create, one of "plans" or "account"
+     * @param {Object} params.config - The configuration for the hosted session
+     * @returns {Promise<HostedSession>} a promise that resolves to the hosted session with a url property
      */
-    createHostedSession({ type, config }: string): Promise<any>;
+    createHostedSession(params: {
+        type: string;
+        config: any;
+    }): Promise<HostedSession>;
 }
 /**
  * SubscriptionConfirmType - The action that will have to take place after a subscription is initialized

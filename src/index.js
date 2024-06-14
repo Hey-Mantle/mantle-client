@@ -258,11 +258,13 @@ class MantleClient {
 
   /**
    * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
-   * @param {string} type - The type of hosted session to create, one of "plans" or "account"
-   * @param {Object} config - The configuration for the hosted session
-   * @returns {Promise<Object>} a promise that resolves to the hosted session with a url property
+   * @param {Object} params - The hosted session options
+   * @param {string} params.type - The type of hosted session to create, one of "plans" or "account"
+   * @param {Object} params.config - The configuration for the hosted session
+   * @returns {Promise<HostedSession>} a promise that resolves to the hosted session with a url property
    */
-  async createHostedSession({ type, config }) {
+  async createHostedSession(params) {
+    const { type, config } = params
     return (await this.mantleRequest({
       path: "hosted_sessions",
       method: "POST",
@@ -458,6 +460,12 @@ const SubscriptionConfirmType = {
  * @typedef SetupIntent - Stripe SetupIntent model, used to collect payment method details for later use
  * @property {string} id - The ID of the setup intent
  * @property {string} clientSecret - The client secret of the setup intent
+ */
+
+/**
+ * @typedef HostedSession - The hosted session, used to send the customer to a hosted page to manage their subscription
+ * @property {string} id - The ID of the hosted session
+ * @property {string} url - The URL of the hosted session
  */
 
 module.exports = {
