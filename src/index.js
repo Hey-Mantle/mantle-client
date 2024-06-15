@@ -77,6 +77,7 @@ class MantleClient {
    * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
    * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
    * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
+   * @param {Address} [params.address] - The address of the customer
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
@@ -91,6 +92,7 @@ class MantleClient {
     rotateApiToken,
     tags,
     operators,
+    address,
   }) {
     return await this.mantleRequest({
       path: "identify",
@@ -107,6 +109,7 @@ class MantleClient {
         rotateApiToken,
         tags,
         operators,
+        address,
       },
     });
   }
@@ -466,6 +469,17 @@ const SubscriptionConfirmType = {
  * @typedef HostedSession - The hosted session, used to send the customer to a hosted page to manage their subscription
  * @property {string} id - The ID of the hosted session
  * @property {string} url - The URL of the hosted session
+ */
+
+/**
+ * @typedef Address - The address of a customer
+ * @property {string} [addressLine1] - The first line of the address
+ * @property {string} [addressLine2] - The second line of the address
+ * @property {string} [city] - The city of the address
+ * @property {string} [state] - The state code of the address, ex. "CA"
+ * @property {string} [postalCode] - The postal code of the address
+ * @property {string} country - The country code of the address, ex. "US"
+ * @property {string} [taxId] - The tax ID of the address
  */
 
 module.exports = {

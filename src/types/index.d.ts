@@ -515,6 +515,39 @@ export type HostedSession = {
     url: string;
 };
 /**
+ * - The address of a customer
+ */
+export type Address = {
+    /**
+     * - The first line of the address
+     */
+    addressLine1?: string;
+    /**
+     * - The second line of the address
+     */
+    addressLine2?: string;
+    /**
+     * - The city of the address
+     */
+    city?: string;
+    /**
+     * - The state code of the address, ex. "CA"
+     */
+    state?: string;
+    /**
+     * - The postal code of the address
+     */
+    postalCode?: string;
+    /**
+     * - The country code of the address, ex. "US"
+     */
+    country: string;
+    /**
+     * - The tax ID of the address
+     */
+    taxId?: string;
+};
+/**
  * @module MantleClient
  * @description The official NodeJS client for the Mantle App API
  */
@@ -565,9 +598,10 @@ export class MantleClient {
      * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
      * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
      * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
+     * @param {Address} [params.address] - The address of the customer
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
-    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, tags, operators, }: {
+    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, tags, operators, address, }: {
         platformId?: string;
         myshopifyDomain?: string;
         platform?: string;
@@ -583,6 +617,7 @@ export class MantleClient {
         operators?: {
             [x: string]: string;
         };
+        address?: Address;
     }): Promise<{
         [x: string]: string;
     }>;
