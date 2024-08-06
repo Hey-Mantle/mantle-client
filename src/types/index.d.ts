@@ -548,6 +548,27 @@ export type Address = {
     taxId?: string;
 };
 /**
+ * - Contact details for a customer
+ */
+export type Contact = {
+    /**
+     * - Name of the contact
+     */
+    name?: string;
+    /**
+     * - Email address of the contact
+     */
+    email?: string;
+    /**
+     * - Phone number of the contact
+     */
+    phone?: string;
+    /**
+     * - Label for the type of contact, ex. "primary", "secondary", "billing", "technical"
+     */
+    label?: string;
+};
+/**
  * @module MantleClient
  * @description The official NodeJS client for the Mantle App API
  */
@@ -599,9 +620,10 @@ export class MantleClient {
      * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
      * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
      * @param {Address} [params.address] - The address of the customer
+     * @param {Object.<string, Contact>} [params.contacts] - The contacts of the customer
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
-    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, tags, operators, address, }: {
+    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, tags, operators, address, contacts, }: {
         platformId?: string;
         myshopifyDomain?: string;
         platform?: string;
@@ -618,6 +640,9 @@ export class MantleClient {
             [x: string]: string;
         };
         address?: Address;
+        contacts?: {
+            [x: string]: Contact;
+        };
     }): Promise<{
         [x: string]: string;
     }>;

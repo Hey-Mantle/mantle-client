@@ -78,6 +78,7 @@ class MantleClient {
    * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
    * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
    * @param {Address} [params.address] - The address of the customer
+   * @param {Object.<string, Contact>} [params.contacts] - The contacts of the customer
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
@@ -93,6 +94,7 @@ class MantleClient {
     tags,
     operators,
     address,
+    contacts,
   }) {
     return await this.mantleRequest({
       path: "identify",
@@ -110,6 +112,7 @@ class MantleClient {
         tags,
         operators,
         address,
+        contacts,
       },
     });
   }
@@ -270,14 +273,18 @@ class MantleClient {
    */
   async createHostedSession(params) {
     const { type, config } = params
-    return (await this.mantleRequest({
+    const response = await this.mantleRequest({
       path: "hosted_sessions",
       method: "POST",
       body: {
         type,
         config,
       },
-    })).session
+    });
+    return {
+      ...(response?.session || {}),
+      ...(response?.error || { error: response.error }),
+    };
   }
 }
 
@@ -482,6 +489,14 @@ const SubscriptionConfirmType = {
  * @property {string} [postalCode] - The postal code of the address
  * @property {string} country - The country code of the address, ex. "US"
  * @property {string} [taxId] - The tax ID of the address
+ */
+
+/**
+ * @typedef Contact - Contact details for a customer
+ * @property {string} [name] - Name of the contact
+ * @property {string} [email] - Email address of the contact
+ * @property {string} [phone] - Phone number of the contact
+ * @property {string} [label] - Label for the type of contact, ex. "primary", "secondary", "billing", "technical"
  */
 
 module.exports = {
