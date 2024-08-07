@@ -548,25 +548,25 @@ export type Address = {
     taxId?: string;
 };
 /**
- * - Contact details for a customer
+ * - The contact of a customer
  */
 export type Contact = {
     /**
-     * - Name of the contact
+     * - The label for the type of the contact
+     */
+    label: "primary" | "secondary" | "billing" | "technical";
+    /**
+     * - The name of the contact
      */
     name?: string;
     /**
-     * - Email address of the contact
+     * - The email of the contact
      */
     email?: string;
     /**
-     * - Phone number of the contact
+     * - The phone of the contact
      */
     phone?: string;
-    /**
-     * - Label for the type of contact, ex. "primary", "secondary", "billing", "technical"
-     */
-    label?: string;
 };
 /**
  * @module MantleClient
@@ -620,7 +620,7 @@ export class MantleClient {
      * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
      * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
      * @param {Address} [params.address] - The address of the customer
-     * @param {Object.<string, Contact>} [params.contacts] - The contacts of the customer
+     * @param {Contact[]} [params.contacts] - The contacts of the customer
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
     identify({ platformId, myshopifyDomain, platform, accessToken, name, email, customFields, createdAt, rotateApiToken, tags, operators, address, contacts, }: {
@@ -640,9 +640,7 @@ export class MantleClient {
             [x: string]: string;
         };
         address?: Address;
-        contacts?: {
-            [x: string]: Contact;
-        };
+        contacts?: Contact[];
     }): Promise<{
         [x: string]: string;
     }>;
@@ -661,15 +659,17 @@ export class MantleClient {
      * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
      * @param {string} [params.billingProvider] - The name of the billing provider to use, if none is provided, use sensible default
      * @param {boolean} [params.useSavedPaymentMethod] - Whether to use the saved payment method for the subscription if available
+     * @param {number} [params.trialDays] - The number of days to trial the subscription for
      * @returns {Promise<Subscription>} a promise that resolves to the created subscription
      */
-    subscribe({ planId, planIds, discountId, returnUrl, billingProvider, useSavedPaymentMethod, }: {
+    subscribe({ planId, planIds, discountId, returnUrl, billingProvider, useSavedPaymentMethod, trialDays, }: {
         planId?: string;
         planIds?: string[];
         discountId?: string;
         returnUrl: string;
         billingProvider?: string;
         useSavedPaymentMethod?: boolean;
+        trialDays?: number;
     }): Promise<Subscription>;
     /**
      * Cancel the current subscription

@@ -78,7 +78,7 @@ class MantleClient {
    * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
    * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
    * @param {Address} [params.address] - The address of the customer
-   * @param {Object.<string, Contact>} [params.contacts] - The contacts of the customer
+   * @param {Array.<Contact>} [params.contacts] - The contacts of the customer
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
@@ -140,6 +140,7 @@ class MantleClient {
    * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
    * @param {string} [params.billingProvider] - The name of the billing provider to use, if none is provided, use sensible default
    * @param {boolean} [params.useSavedPaymentMethod] - Whether to use the saved payment method for the subscription if available
+   * @param {number} [params.trialDays] - The number of days to trial the subscription for
    * @returns {Promise<Subscription>} a promise that resolves to the created subscription
    */
   async subscribe({
@@ -149,11 +150,20 @@ class MantleClient {
     returnUrl,
     billingProvider,
     useSavedPaymentMethod = false,
+    trialDays,
   }) {
     return await this.mantleRequest({
       path: "subscriptions",
       method: "POST",
-      body: { planId, planIds, discountId, returnUrl, billingProvider, useSavedPaymentMethod },
+      body: {
+        planId,
+        planIds,
+        discountId,
+        returnUrl,
+        billingProvider,
+        useSavedPaymentMethod,
+        trialDays,
+      },
     });
   }
 
@@ -492,11 +502,11 @@ const SubscriptionConfirmType = {
  */
 
 /**
- * @typedef Contact - Contact details for a customer
- * @property {string} [name] - Name of the contact
- * @property {string} [email] - Email address of the contact
- * @property {string} [phone] - Phone number of the contact
- * @property {string} [label] - Label for the type of contact, ex. "primary", "secondary", "billing", "technical"
+ * @typedef Contact - The contact of a customer
+ * @property {"primary"|"secondary"|"billing"|"technical"} label - The label for the type of the contact
+ * @property {string} [name] - The name of the contact
+ * @property {string} [email] - The email of the contact
+ * @property {string} [phone] - The phone of the contact
  */
 
 module.exports = {
