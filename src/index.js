@@ -79,6 +79,7 @@ class MantleClient {
    * @param {Object.<string, string>} [params.operators] - The map of fields to operators to use for the query, such as { tags: "append" }. Possibly values are "append", "remove", "replace"
    * @param {Address} [params.address] - The address of the customer
    * @param {Array.<Contact>} [params.contacts] - The contacts of the customer
+   * @param {string} [params.defaultBillingProvider] - The default billing provider to use for the customer, if none is provided, use platform default
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
@@ -95,6 +96,7 @@ class MantleClient {
     operators,
     address,
     contacts,
+    defaultBillingProvider,
   }) {
     return await this.mantleRequest({
       path: "identify",
@@ -113,6 +115,7 @@ class MantleClient {
         operators,
         address,
         contacts,
+        defaultBillingProvider,
       },
     });
   }
