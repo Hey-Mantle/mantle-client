@@ -207,7 +207,10 @@ class MantleClient {
    * @param {string} [params.eventId] - The ID of the event
    * @param {string} params.eventName - The name of the event which can be tracked by usage metrics
    * @param {Date} params.timestamp - The timestamp of the event, leave blank to use the current time
-   * @param {string} [params.customerId] - Required if customerApiToken is not used for authentication. One of either the customer token, Mantle customer ID, platform ID / Shopify Shop ID, Shopify myshopify.com domain
+   * @param {string} [params.customerId] - Required if customerApiToken is not used for authentication. One of either:
+   *                                       - Mantle customer ID returned by the /customer endpoint
+   *                                       - platformId used to identify the customer on the platform
+   *                                       - Shopify shopId or myshopifyDomain
    * @param {Object.<string, any>} [params.properties] - The event properties
    * @returns {Promise<boolean>} true if the event was sent successfully
    */
