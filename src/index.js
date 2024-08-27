@@ -72,6 +72,7 @@ class MantleClient {
    * @param {string} [params.accessToken] - The access token for the platform API, for Shopify apps, this should be the Shop access token
    * @param {string} [params.name] - The name of the customer
    * @param {string} [params.email] - The email of the customer
+   * @param {string} [params.platformPlanName] - The name of the plan on the platform (Shopify plan name)
    * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
    * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
    * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
@@ -89,6 +90,7 @@ class MantleClient {
     accessToken,
     name,
     email,
+    platformPlanName,
     customFields,
     createdAt,
     rotateApiToken,
@@ -108,6 +110,7 @@ class MantleClient {
         accessToken,
         name,
         email,
+        platformPlanName,
         customFields,
         createdAt,
         rotateApiToken,
