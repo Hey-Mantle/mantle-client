@@ -311,6 +311,7 @@ class MantleClient {
  * @typedef Customer - The currently authenticated user of your app
  * @property {string} id - The ID of the customer
  * @property {boolean} test - Whether the customer is a test customer
+ * @property {"none"|"active"|"trialing"|"canceled"|"frozen"} billingStatus - The current billing status of the customer
  * @property {Date} [installedAt] - The date the customer was first seen or installed
  * @property {Date} [trialStartsAt] - If the customer has or had a trial, the date that it started
  * @property {Date} [trialExpiresAt] - If the customer has or had a trial, the date that it ended
@@ -321,6 +322,7 @@ class MantleClient {
  * @property {Object.<string, UsageMetric>} usage - The usage metrics for the current customer
  * @property {Object.<string, Object>} [customFields] - The custom fields on the customer
  * @property {Array.<UsageCredit>} usageCredits - The usage credits of the customer
+ * @property {Array.<Review>} reviews - Reviews left by the customer on a platform's app store
  */
 
 /**
@@ -516,6 +518,15 @@ const SubscriptionConfirmType = {
  * @property {string} [name] - The name of the contact
  * @property {string} [email] - The email of the contact
  * @property {string} [phone] - The phone of the contact
+ */
+
+/**
+ * @typedef Review - The review left by the customer on a platform's app store
+ * @property {string} id - The ID of the review
+ * @property {string} type - The platform the review is on, e.g. "shopify"
+ * @property {number} [rating] - The rating of the review
+ * @property {string} [content] - The content of the review
+ * @property {Date} [date] - The date the review was added to the platform
  */
 
 module.exports = {

@@ -11,6 +11,10 @@ export type Customer = {
      */
     test: boolean;
     /**
+     * - The current billing status of the customer
+     */
+    billingStatus: "none" | "active" | "trialing" | "canceled" | "frozen";
+    /**
      * - The date the customer was first seen or installed
      */
     installedAt?: Date;
@@ -56,6 +60,10 @@ export type Customer = {
      * - The usage credits of the customer
      */
     usageCredits: Array<UsageCredit>;
+    /**
+     * - Reviews left by the customer on a platform's app store
+     */
+    reviews: Array<Review>;
 };
 /**
  * - The subscription of the current customer, if any
@@ -567,6 +575,31 @@ export type Contact = {
      * - The phone of the contact
      */
     phone?: string;
+};
+/**
+ * - The review left by the customer on a platform's app store
+ */
+export type Review = {
+    /**
+     * - The ID of the review
+     */
+    id: string;
+    /**
+     * - The platform the review is on, e.g. "shopify"
+     */
+    type: string;
+    /**
+     * - The rating of the review
+     */
+    rating?: number;
+    /**
+     * - The content of the review
+     */
+    content?: string;
+    /**
+     * - The date the review was added to the platform
+     */
+    date?: Date;
 };
 /**
  * @module MantleClient
