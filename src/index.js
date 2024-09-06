@@ -311,11 +311,12 @@ class MantleClient {
  * @typedef Customer - The currently authenticated user of your app
  * @property {string} id - The ID of the customer
  * @property {boolean} test - Whether the customer is a test customer
- * @property {"none"|"active"|"trialing"|"canceled"|"frozen"} billingStatus - The current billing status of the customer
  * @property {Date} [installedAt] - The date the customer was first seen or installed
  * @property {Date} [trialStartsAt] - If the customer has or had a trial, the date that it started
  * @property {Date} [trialExpiresAt] - If the customer has or had a trial, the date that it ended
  * @property {Array.<Plan>} plans - The plans available to the customer
+ * @property {string} [preferredCurrency] - The customer's preferred currency
+ * @property {"none"|"active"|"trialing"|"canceled"|"frozen"} billingStatus - The current billing status of the customer
  * @property {Subscription} [subscription] - The subscription of the current customer, if any
  * @property {PaymentMethod} [paymentMethod] - The payment method of the current customer, if any
  * @property {Object.<string, Feature>} features - The features enabled for the current customer
@@ -359,35 +360,61 @@ const SubscriptionConfirmType = {
  * @typedef Subscription - The subscription of the current customer, if any
  * @property {string} id - The ID of the subscription
  * @property {Plan} plan - The plan of the subscription
+ * @property {Array.<SubscriptionLineItem>} lineItems - The line items of the subscription
  * @property {boolean} active - Whether the subscription is active
- * @property {string} [activatedAt] - The date the subscription was activated
- * @property {string} [cancelledAt] - The date the subscription was cancelled
- * @property {string} [frozenAt] - The date the subscription was frozen
+ * @property {Date} [activatedAt] - The date the subscription was activated
+ * @property {Date} [billingCycleAnchor] - The date that the first billing cycle starts or started
+ * @property {Date} [currentPeriodStart] - The date that the current billing cycle starts
+ * @property {Date} [currentPeriodEnd] - The date that the current billing cycle ends
+ * @property {Date} [trialStartsAt] - The date that the trial starts
+ * @property {Date} [trialExpiresAt] - The date that the trial ends
+ * @property {Date} [cancelOn] - The date the subscription will be cancelled
+ * @property {Date} [cancelledAt] - The date the subscription was cancelled
+ * @property {Date} [frozenAt] - The date the subscription was frozen
+ * @property {Date} [createdAt] - The date the subscription was created
  * @property {Object.<string, Feature>} features - The features of the subscription
  * @property {Array.<string>} featuresOrder - The order of the features by key
  * @property {Array.<UsageCharge>} usageCharges - The usage charges of the subscription
- * @property {string} [createdAt] - The date the subscription was created
+ * @property {number} [usageChargeCappedAmount] - The capped amount of the usage charge
+ * @property {number} [usageBalanceUsed] - The amount of the usage balance used
+ * @property {AppliedDiscount} [appliedDiscount] - Any discount applied to the subscription
+ * @property {number} total - The total amount of the plan, after discounts if applicable
+ * @property {number} subtotal - The subtotal amount of the plan, before discounts if applicable
+ * @property {number} presentmentTotal - The presentment total amount of the plan, after discounts if applicable
+ * @property {number} presentmentSubtotal - The presentment subtotal amount of the plan, before discounts if applicable
  * @property {URL} [confirmationUrl] - The URL to confirm the subscription
  * @property {URL} [returnUrl] - The URL to return to after the subscription is complete
  * @property {string} [clientSecret] - The client secret returned by the billing provider when creating the subscription
  * @property {SubscriptionConfirmType} [confirmType] - The action that can be taken after a subscription is created
- * @property {number} [usageChargeCappedAmount] - The capped amount of the usage charge
- * @property {number} [usageBalanceUsed] - The amount of the usage balance used
- * @property {AppliedDiscount} [appliedDiscount]
- * @property {number} total - The total amount of the plan, after discounts if applicable
- * @property {number} subtotal - The subtotal amount of the plan, before discounts if applicable
+ */
+
+/**
+ * @typedef SubscriptionLineItem - The line items of a subscription
+ * @property {string} id - The ID of the line item
+ * @property {string} type - The type of the line item
+ * @property {number} amount - The amount of the line item
+ * @property {string} currencyCode - The currency code of the line item
+ * @property {number} presentmentAmount - The presentment amount of the line item
+ * @property {number} presentmentCurrencyCode - The presentment currency code of the line item
+ * @property {Plan} plan - The plan of the line item
  */
 
 /**
  * @typedef Plan - Various details about a Mantle subscription plan
  * @property {string} id - The ID of the plan
  * @property {string} name - The name of the plan
+ * @property {string} [description] - The description of the plan
  * @property {string} availability - The availability of the plan, one of "public", "customerTag", "customer", "shopifyPlan" or "hidden"
+ * @property {"base"|"add_on"} type - The type of the plan, one of "base" or "add_on"
  * @property {string} currencyCode - The currency code of the plan
+ * @property {number} presentmentAmount - The presentment amount of the plan
+ * @property {number} presentmentCurrencyCode - The presentment currency code of the plan
  * @property {number} total - The total amount of the plan, after discounts if applicable
  * @property {number} subtotal - The subtotal amount of the plan, before discounts if applicable
  * @property {number} amount - [Deprecated] use subtotal instead
  * @property {boolean} public - Whether the plan is public
+ * @property {boolean} visible - Whether the plan is visible to the customer
+ * @property {boolean} eligible - Whether the plan is eligible for the customer
  * @property {number} trialDays - The number of days in the trial period
  * @property {"EVERY_30_DAYS"|"ANNUAL"} interval - The interval of the plan
  * @property {Object.<string, Feature>} features - The features of the plan
@@ -397,6 +424,10 @@ const SubscriptionConfirmType = {
  * @property {Object.<string, Object>} [customFields] - The custom fields on the plan
  * @property {Array.<Discount>} discounts - The discounts on the plan
  * @property {Discount} [autoAppliedDiscount] - The auto apply discount on the plan, if any
+ * @property {boolean} [flexBilling] - Whether the plan is part of a flex billing flow
+ * @property {string} [flexBillingTerms] - The terms of the flex billing plam
+ * @property {string} [autoUpgradeToPlanId] - The ID of the plan to auto upgrade to
+ * @property {Plan} [autoUpgradeBasePlan] - The base plan in the auto upgrade relationship
  * @property {string} [createdAt] - The date the plan was created
  * @property {string} [updatedAt] - The date the plan was last updated
  */
@@ -482,11 +513,16 @@ const SubscriptionConfirmType = {
 /**
  * @typedef Discount - Details about a discount for a plan or subscription
  * @property {string} id - The ID of the discount
+ * @property {string} name - The name of the discount
+ * @property {string} description - The description of the discount
  * @property {number} [amount] - The amount of the discount
  * @property {string} [amountCurrencyCode] - The currency code of the discount amount
+ * @property {number} [presentmentAmount] - The presentment amount of the discount
+ * @property {number} [presentmentCurrencyCode] - The presentment currency code of the discount
  * @property {number} [percentage] - The percentage of the discount
  * @property {number} [durationLimitInIntervals] - The duration limit of the discount in plan intervals
  * @property {number} discountedAmount - The discounted amount of plan after discount
+ * @property {number} presentmentDiscountedAmount - The presentment discounted amount of plan after discount
  */
 
 /**

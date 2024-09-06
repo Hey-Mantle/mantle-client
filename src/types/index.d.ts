@@ -11,10 +11,6 @@ export type Customer = {
      */
     test: boolean;
     /**
-     * - The current billing status of the customer
-     */
-    billingStatus: "none" | "active" | "trialing" | "canceled" | "frozen";
-    /**
      * - The date the customer was first seen or installed
      */
     installedAt?: Date;
@@ -30,6 +26,14 @@ export type Customer = {
      * - The plans available to the customer
      */
     plans: Array<Plan>;
+    /**
+     * - The customer's preferred currency
+     */
+    preferredCurrency?: string;
+    /**
+     * - The current billing status of the customer
+     */
+    billingStatus: "none" | "active" | "trialing" | "canceled" | "frozen";
     /**
      * - The subscription of the current customer, if any
      */
@@ -78,21 +82,53 @@ export type Subscription = {
      */
     plan: Plan;
     /**
+     * - The line items of the subscription
+     */
+    lineItems: Array<SubscriptionLineItem>;
+    /**
      * - Whether the subscription is active
      */
     active: boolean;
     /**
      * - The date the subscription was activated
      */
-    activatedAt?: string;
+    activatedAt?: Date;
+    /**
+     * - The date that the first billing cycle starts or started
+     */
+    billingCycleAnchor?: Date;
+    /**
+     * - The date that the current billing cycle starts
+     */
+    currentPeriodStart?: Date;
+    /**
+     * - The date that the current billing cycle ends
+     */
+    currentPeriodEnd?: Date;
+    /**
+     * - The date that the trial starts
+     */
+    trialStartsAt?: Date;
+    /**
+     * - The date that the trial ends
+     */
+    trialExpiresAt?: Date;
+    /**
+     * - The date the subscription will be cancelled
+     */
+    cancelOn?: Date;
     /**
      * - The date the subscription was cancelled
      */
-    cancelledAt?: string;
+    cancelledAt?: Date;
     /**
      * - The date the subscription was frozen
      */
-    frozenAt?: string;
+    frozenAt?: Date;
+    /**
+     * - The date the subscription was created
+     */
+    createdAt?: Date;
     /**
      * - The features of the subscription
      */
@@ -108,9 +144,33 @@ export type Subscription = {
      */
     usageCharges: Array<UsageCharge>;
     /**
-     * - The date the subscription was created
+     * - The capped amount of the usage charge
      */
-    createdAt?: string;
+    usageChargeCappedAmount?: number;
+    /**
+     * - The amount of the usage balance used
+     */
+    usageBalanceUsed?: number;
+    /**
+     * - Any discount applied to the subscription
+     */
+    appliedDiscount?: AppliedDiscount;
+    /**
+     * - The total amount of the plan, after discounts if applicable
+     */
+    total: number;
+    /**
+     * - The subtotal amount of the plan, before discounts if applicable
+     */
+    subtotal: number;
+    /**
+     * - The presentment total amount of the plan, after discounts if applicable
+     */
+    presentmentTotal: number;
+    /**
+     * - The presentment subtotal amount of the plan, before discounts if applicable
+     */
+    presentmentSubtotal: number;
     /**
      * - The URL to confirm the subscription
      */
@@ -127,23 +187,39 @@ export type Subscription = {
      * - The action that can be taken after a subscription is created
      */
     confirmType?: SubscriptionConfirmType;
+};
+/**
+ * - The line items of a subscription
+ */
+export type SubscriptionLineItem = {
     /**
-     * - The capped amount of the usage charge
+     * - The ID of the line item
      */
-    usageChargeCappedAmount?: number;
+    id: string;
     /**
-     * - The amount of the usage balance used
+     * - The type of the line item
      */
-    usageBalanceUsed?: number;
-    appliedDiscount?: AppliedDiscount;
+    type: string;
     /**
-     * - The total amount of the plan, after discounts if applicable
+     * - The amount of the line item
      */
-    total: number;
+    amount: number;
     /**
-     * - The subtotal amount of the plan, before discounts if applicable
+     * - The currency code of the line item
      */
-    subtotal: number;
+    currencyCode: string;
+    /**
+     * - The presentment amount of the line item
+     */
+    presentmentAmount: number;
+    /**
+     * - The presentment currency code of the line item
+     */
+    presentmentCurrencyCode: number;
+    /**
+     * - The plan of the line item
+     */
+    plan: Plan;
 };
 /**
  * - Various details about a Mantle subscription plan
@@ -158,13 +234,29 @@ export type Plan = {
      */
     name: string;
     /**
+     * - The description of the plan
+     */
+    description?: string;
+    /**
      * - The availability of the plan, one of "public", "customerTag", "customer", "shopifyPlan" or "hidden"
      */
     availability: string;
     /**
+     * - The type of the plan, one of "base" or "add_on"
+     */
+    type: "base" | "add_on";
+    /**
      * - The currency code of the plan
      */
     currencyCode: string;
+    /**
+     * - The presentment amount of the plan
+     */
+    presentmentAmount: number;
+    /**
+     * - The presentment currency code of the plan
+     */
+    presentmentCurrencyCode: number;
     /**
      * - The total amount of the plan, after discounts if applicable
      */
@@ -181,6 +273,14 @@ export type Plan = {
      * - Whether the plan is public
      */
     public: boolean;
+    /**
+     * - Whether the plan is visible to the customer
+     */
+    visible: boolean;
+    /**
+     * - Whether the plan is eligible for the customer
+     */
+    eligible: boolean;
     /**
      * - The number of days in the trial period
      */
@@ -221,6 +321,22 @@ export type Plan = {
      * - The auto apply discount on the plan, if any
      */
     autoAppliedDiscount?: Discount;
+    /**
+     * - Whether the plan is part of a flex billing flow
+     */
+    flexBilling?: boolean;
+    /**
+     * - The terms of the flex billing plam
+     */
+    flexBillingTerms?: string;
+    /**
+     * - The ID of the plan to auto upgrade to
+     */
+    autoUpgradeToPlanId?: string;
+    /**
+     * - The base plan in the auto upgrade relationship
+     */
+    autoUpgradeBasePlan?: Plan;
     /**
      * - The date the plan was created
      */
@@ -476,6 +592,14 @@ export type Discount = {
      */
     id: string;
     /**
+     * - The name of the discount
+     */
+    name: string;
+    /**
+     * - The description of the discount
+     */
+    description: string;
+    /**
      * - The amount of the discount
      */
     amount?: number;
@@ -483,6 +607,14 @@ export type Discount = {
      * - The currency code of the discount amount
      */
     amountCurrencyCode?: string;
+    /**
+     * - The presentment amount of the discount
+     */
+    presentmentAmount?: number;
+    /**
+     * - The presentment currency code of the discount
+     */
+    presentmentCurrencyCode?: number;
     /**
      * - The percentage of the discount
      */
@@ -495,6 +627,10 @@ export type Discount = {
      * - The discounted amount of plan after discount
      */
     discountedAmount: number;
+    /**
+     * - The presentment discounted amount of plan after discount
+     */
+    presentmentDiscountedAmount: number;
 };
 /**
  * - Stripe SetupIntent model, used to collect payment method details for later use
