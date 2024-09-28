@@ -147,6 +147,7 @@ class MantleClient {
    * @param {string} [params.billingProvider] - The name of the billing provider to use, if none is provided, use sensible default
    * @param {boolean} [params.useSavedPaymentMethod] - Whether to use the saved payment method for the subscription if available
    * @param {number} [params.trialDays] - The number of days to trial the subscription for
+   * @param {boolean} [params.hosted] - Whether or not to use Stripe checkout for the subscription. Not applicable for Shopify subscriptions as they are always hosted. Defaults to true
    * @returns {Promise<Subscription>} a promise that resolves to the created subscription
    */
   async subscribe({
@@ -157,6 +158,7 @@ class MantleClient {
     billingProvider,
     useSavedPaymentMethod = false,
     trialDays,
+    hosted = true,
   }) {
     return await this.mantleRequest({
       path: "subscriptions",
@@ -169,6 +171,7 @@ class MantleClient {
         billingProvider,
         useSavedPaymentMethod,
         trialDays,
+        hosted,
       },
     });
   }
