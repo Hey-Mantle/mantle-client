@@ -81,6 +81,8 @@ class MantleClient {
    * @param {Address} [params.address] - The address of the customer
    * @param {Array.<Contact>} [params.contacts] - The contacts of the customer
    * @param {string} [params.defaultBillingProvider] - The default billing provider to use for the customer, if none is provided, use platform default
+   * @param {string} [params.stripeId] - The Stripe ID of the customer if using Stripe as a billing provider
+   * @param {string} [params.billingProviderId] - The ID of the customer on the external billing provider, if applicable
    * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
    */
   async identify({
@@ -99,6 +101,8 @@ class MantleClient {
     address,
     contacts,
     defaultBillingProvider,
+    billingProviderId,
+    stripeId,
   }) {
     return await this.mantleRequest({
       path: "identify",
@@ -119,6 +123,8 @@ class MantleClient {
         address,
         contacts,
         defaultBillingProvider,
+        billingProviderId,
+        stripeId,
       },
     });
   }
