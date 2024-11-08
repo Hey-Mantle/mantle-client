@@ -751,7 +751,7 @@ export class MantleClient {
      * @param {string} [params.customerApiToken] - The Mantle Customer API Token returned by the /identify endpoint. This should be used in the browser.
      * @param {string} [params.apiUrl] - The Mantle API URL to use
      */
-    constructor({ appId, apiKey, customerApiToken, apiUrl }: {
+    constructor({ appId, apiKey, customerApiToken, apiUrl, }: {
         appId: string;
         apiKey?: string;
         customerApiToken?: string;
@@ -785,6 +785,7 @@ export class MantleClient {
      * @param {string} [params.email] - The email of the customer
      * @param {string} [params.platformPlanName] - The name of the plan on the platform (Shopify plan name)
      * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
+     * @param {Object.<string, string>} [params.features] - Key-value pairs of features to override on the customer. Normally features are automatically set based on the customer's subscription, but this allows you to override them.
      * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
      * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
      * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
@@ -796,7 +797,7 @@ export class MantleClient {
      * @param {string} [params.billingProviderId] - The ID of the customer on the external billing provider, if applicable
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
-    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, platformPlanName, customFields, createdAt, rotateApiToken, tags, operators, address, contacts, defaultBillingProvider, billingProviderId, stripeId, }: {
+    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, platformPlanName, customFields, features, createdAt, rotateApiToken, tags, operators, address, contacts, defaultBillingProvider, billingProviderId, stripeId, }: {
         platformId?: string;
         myshopifyDomain?: string;
         platform?: string;
@@ -806,6 +807,9 @@ export class MantleClient {
         platformPlanName?: string;
         customFields?: {
             [x: string]: any;
+        };
+        features?: {
+            [x: string]: string;
         };
         createdAt?: Date;
         rotateApiToken?: boolean;
@@ -883,7 +887,7 @@ export class MantleClient {
      * @param {Object.<string, any>} [params.properties] - The event properties
      * @returns {Promise<boolean>} true if the event was sent successfully
      */
-    sendUsageEvent({ eventId, eventName, timestamp, customerId, properties }: {
+    sendUsageEvent({ eventId, eventName, timestamp, customerId, properties, }: {
         eventId?: string;
         eventName: string;
         timestamp: Date;

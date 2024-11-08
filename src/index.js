@@ -12,12 +12,19 @@ class MantleClient {
    * @param {string} [params.customerApiToken] - The Mantle Customer API Token returned by the /identify endpoint. This should be used in the browser.
    * @param {string} [params.apiUrl] - The Mantle API URL to use
    */
-  constructor({ appId, apiKey, customerApiToken, apiUrl = "https://appapi.heymantle.com/v1" }) {
+  constructor({
+    appId,
+    apiKey,
+    customerApiToken,
+    apiUrl = "https://appapi.heymantle.com/v1",
+  }) {
     if (!appId) {
       throw new Error("MantleClient appId is required");
     }
     if (typeof window !== "undefined" && apiKey) {
-      throw new Error("MantleClient apiKey should never be used in the browser");
+      throw new Error(
+        "MantleClient apiKey should never be used in the browser"
+      );
     }
 
     this.appId = appId;
@@ -74,6 +81,7 @@ class MantleClient {
    * @param {string} [params.email] - The email of the customer
    * @param {string} [params.platformPlanName] - The name of the plan on the platform (Shopify plan name)
    * @param {Object.<string, Object>} [params.customFields] - Custom fields to store on the customer, must be a JSON object
+   * @param {Object.<string, string>} [params.features] - Key-value pairs of features to override on the customer. Normally features are automatically set based on the customer's subscription, but this allows you to override them.
    * @param {Date} [params.createdAt] - The date the customer was created, defaults to now if not provided
    * @param {boolean} [params.rotateApiToken] - True to rotate the customer API token and return the new value
    * @param {string[]} [params.tags] - The tags to apply to the customer. Default operator is "replace"
@@ -94,6 +102,7 @@ class MantleClient {
     email,
     platformPlanName,
     customFields,
+    features,
     createdAt,
     rotateApiToken,
     tags,
@@ -116,6 +125,7 @@ class MantleClient {
         email,
         platformPlanName,
         customFields,
+        features,
         createdAt,
         rotateApiToken,
         tags,
@@ -226,7 +236,13 @@ class MantleClient {
    * @param {Object.<string, any>} [params.properties] - The event properties
    * @returns {Promise<boolean>} true if the event was sent successfully
    */
-  async sendUsageEvent({ eventId, eventName, timestamp, customerId, properties = {} }) {
+  async sendUsageEvent({
+    eventId,
+    eventName,
+    timestamp,
+    customerId,
+    properties = {},
+  }) {
     return await this.mantleRequest({
       path: "usage_events",
       method: "POST",
@@ -300,7 +316,7 @@ class MantleClient {
    * @returns {Promise<HostedSession>} a promise that resolves to the hosted session with a url property
    */
   async createHostedSession(params) {
-    const { type, config } = params
+    const { type, config } = params;
     const response = await this.mantleRequest({
       path: "hosted_sessions",
       method: "POST",
