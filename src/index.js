@@ -458,8 +458,24 @@ const SubscriptionConfirmType = {
  * @property {string} platformId - The ID of the invoice on the billing provider's platform
  * @property {string} [hostedInvoiceUrl] - The URL to the hosted invoice on the billing provider's platform
  * @property {PlatformInvoice} [platformInvoice] - The invoice on the billing provider's platform
+ * @property {InvoiceLineItem[]} items - The line items of the invoice
  * @property {string} createdAt - The date the invoice was created
  * @property {string} updatedAt - The date the invoice was last updated
+ */
+
+/**
+ * @typedef InvoiceLineItem - The line items of an invoice
+ * @property {string} id - The ID of the line item
+ * @property {string} type - The type of the line item
+ * @property {number} amount - The amount of the line item
+ * @property {string} currencyCode - The currency code of the line item
+ * @property {string} [description] - The description of the line item
+ * @property {boolean} paid - Whether the line item has been paid
+ * @property {string} periodStart - The start date of the invoice period
+ * @property {string} periodEnd - The end date of the invoice period
+ * @property {boolean} prorated - Whether the line item is prorated
+ * @property {number} quantity - The quantity of the line item
+ * @property {number} unitAmount - The unit amount of the line item
  */
 
 /**

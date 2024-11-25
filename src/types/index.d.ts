@@ -305,6 +305,10 @@ export type Invoice = {
      */
     platformInvoice?: PlatformInvoice;
     /**
+     * - The line items of the invoice
+     */
+    items: InvoiceLineItem[];
+    /**
      * - The date the invoice was created
      */
     createdAt: string;
@@ -312,6 +316,55 @@ export type Invoice = {
      * - The date the invoice was last updated
      */
     updatedAt: string;
+};
+/**
+ * - The line items of an invoice
+ */
+export type InvoiceLineItem = {
+    /**
+     * - The ID of the line item
+     */
+    id: string;
+    /**
+     * - The type of the line item
+     */
+    type: string;
+    /**
+     * - The amount of the line item
+     */
+    amount: number;
+    /**
+     * - The currency code of the line item
+     */
+    currencyCode: string;
+    /**
+     * - The description of the line item
+     */
+    description?: string;
+    /**
+     * - Whether the line item has been paid
+     */
+    paid: boolean;
+    /**
+     * - The start date of the invoice period
+     */
+    periodStart: string;
+    /**
+     * - The end date of the invoice period
+     */
+    periodEnd: string;
+    /**
+     * - Whether the line item is prorated
+     */
+    prorated: boolean;
+    /**
+     * - The quantity of the line item
+     */
+    quantity: number;
+    /**
+     * - The unit amount of the line item
+     */
+    unitAmount: number;
 };
 /**
  * - Various details about a Mantle subscription plan
