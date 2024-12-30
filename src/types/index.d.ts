@@ -942,7 +942,7 @@ export class MantleClient {
      * @param {string} [params.billingProviderId] - The ID of the customer on the external billing provider, if applicable
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
-    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, platformPlanName, customFields, features, createdAt, rotateApiToken, tags, operators, address, contacts, defaultBillingProvider, billingProviderId, stripeId, }: {
+    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, platformPlanName, customFields, features, createdAt, rotateApiToken, tags, operators, address, contacts, defaultBillingProvider, }: {
         platformId?: string;
         myshopifyDomain?: string;
         platform?: string;
@@ -987,6 +987,9 @@ export class MantleClient {
      * @param {boolean} [params.useSavedPaymentMethod] - Whether to use the saved payment method for the subscription if available
      * @param {number} [params.trialDays] - The number of days to trial the subscription for
      * @param {boolean} [params.hosted] - Whether or not to use Stripe checkout for the subscription. Not applicable for Shopify subscriptions as they are always hosted. Defaults to true
+     * @param {boolean} [params.requireBillingAddress] - (Stripe checkout only) Tell the Stripe Checkout Session to require a billing address. Defaults to false.
+     * @param {string} [params.email] - (Stripe checkout only) Prefill the Stripe customer's email address. Defaults to null.
+     * @param {Object.<string, string>} [params.metadata] - (Stripe checkout only) The metadata to attach to the subscription. Key-value pairs of metadata to attach to the subscription. Defaults to null.
      * @returns {Promise<Subscription>} a promise that resolves to the created subscription
      */
     subscribe({ planId, planIds, discountId, returnUrl, billingProvider, useSavedPaymentMethod, trialDays, hosted, }: {
@@ -998,6 +1001,11 @@ export class MantleClient {
         useSavedPaymentMethod?: boolean;
         trialDays?: number;
         hosted?: boolean;
+        requireBillingAddress?: boolean;
+        email?: string;
+        metadata?: {
+            [x: string]: string;
+        };
     }): Promise<Subscription>;
     /**
      * Cancel the current subscription

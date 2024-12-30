@@ -133,6 +133,41 @@ await client.sendUsageEvent({
 });
 ```
 
+## Using Stripe billing provider with Checkout Sessions
+
+1. Create your Mantle application, connect Stripe as a billing provider
+2. Create Mantle API client, add details it to your .env file
+3. Create plans which will propagate to Stripe
+4. Identify with defaultBillingProvider flag, 'stripe' - this will create a customer in Stripe and link it to the Mantle customer if one doesn't exist, otherwise it will link the existing Stripe customer to the Mantle customer
+
+```javascript
+const result = await mantleClient.identify({
+  platform: 'shopify',
+  platformId: id,
+  myshopifyDomain,
+  accessToken,
+  name,
+  email,
+  defaultBillingProvider: "stripe",
+});
+```
+
+5. Fetch plans using /customer API
+6. Call subscribe API to create subscription and redirect to `confirmationUrl`
+
+```javascript
+const subscription = await subscribe({
+  planId: plan.id,
+  hosted: true,
+  requireBillingAddress: true, // optional, defaults to false
+  email: "email@customer.com", // optional, defaults to nil, used to prefill customer email in Stripe checkout
+  metadata: {
+    key: "value",
+  }, // optional, defaults to nil, adds metadata to the newly created subscription in Stripe
+});
+open(subscription.confirmationUrl, "_top");
+```
+
 ## Documentation
 
 Documentation is available at [https://heymantle.com/docs/integrate](https://heymantle.com/docs/integrate).
