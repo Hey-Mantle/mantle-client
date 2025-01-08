@@ -7,9 +7,29 @@ export type Customer = {
      */
     id: string;
     /**
+     * - The name of the customer
+     */
+    name?: string;
+    /**
      * - Whether the customer is a test customer
      */
     test: boolean;
+    /**
+     * - The customer's preferred currency
+     */
+    preferredCurrency?: string;
+    /**
+     * - The platform the customer is on, one of "shopify", "web" or "mantle"
+     */
+    platform?: string;
+    /**
+     * - The ID of the customer on the platform
+     */
+    platformId?: string;
+    /**
+     * - The myshopify domain of the customer, if on the Shopify platform
+     */
+    myshopifyDomain?: string;
     /**
      * - The date the customer was first seen or installed
      */
@@ -26,14 +46,6 @@ export type Customer = {
      * - The plans available to the customer
      */
     plans: Array<Plan>;
-    /**
-     * - The customer's preferred currency
-     */
-    preferredCurrency?: string;
-    /**
-     * - The current billing status of the customer
-     */
-    billingStatus: "none" | "active" | "trialing" | "canceled" | "frozen";
     /**
      * - The subscription of the current customer, if any
      */
@@ -61,6 +73,10 @@ export type Customer = {
         [x: string]: any;
     };
     /**
+     * - The invoice of the current customer, if the customer is billed via Stripe
+     */
+    currentInvoice?: Invoice;
+    /**
      * - The usage credits of the customer
      */
     usageCredits: Array<UsageCredit>;
@@ -68,6 +84,10 @@ export type Customer = {
      * - Reviews left by the customer on a platform's app store
      */
     reviews: Array<Review>;
+    /**
+     * - The current billing status of the customer
+     */
+    billingStatus: "none" | "active" | "trialing" | "canceled" | "frozen";
 };
 /**
  * - The subscription of the current customer, if any
@@ -922,9 +942,9 @@ export class MantleClient {
     /**
      * Identify the customer with Mantle. One of `platformId` or `myshopifyDomain` are required.
      * @param {Object} params
+     * @param {string} [params.platform] - The platform the customer is on, defaults to shopify
      * @param {string} [params.platformId] - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
      * @param {string} [params.myshopifyDomain] - The myshopify.com domain of the Shopify store
-     * @param {string} [params.platform] - The platform the customer is on, defaults to shopify
      * @param {string} [params.accessToken] - The access token for the platform API, for Shopify apps, this should be the Shop access token
      * @param {string} [params.name] - The name of the customer
      * @param {string} [params.email] - The email of the customer
@@ -938,14 +958,13 @@ export class MantleClient {
      * @param {Address} [params.address] - The address of the customer
      * @param {Array.<Contact>} [params.contacts] - The contacts of the customer
      * @param {string} [params.defaultBillingProvider] - The default billing provider to use for the customer, if none is provided, use platform default
-     * @param {string} [params.stripeId] - The Stripe ID of the customer if using Stripe as a billing provider
-     * @param {string} [params.billingProviderId] - The ID of the customer on the external billing provider, if applicable
+     * @param {string} [params.stripeId] - The Stripe ID of the customer
      * @returns {Promise<Object.<string, string>} a promise that resolves to an object with the customer API token, `apiToken`
      */
-    identify({ platformId, myshopifyDomain, platform, accessToken, name, email, platformPlanName, customFields, features, createdAt, rotateApiToken, tags, operators, address, contacts, defaultBillingProvider, }: {
+    identify({ platform, platformId, myshopifyDomain, accessToken, name, email, platformPlanName, customFields, features, createdAt, rotateApiToken, tags, operators, address, contacts, defaultBillingProvider, stripeId, }: {
+        platform?: string;
         platformId?: string;
         myshopifyDomain?: string;
-        platform?: string;
         accessToken?: string;
         name?: string;
         email?: string;
@@ -966,7 +985,6 @@ export class MantleClient {
         contacts?: Array<Contact>;
         defaultBillingProvider?: string;
         stripeId?: string;
-        billingProviderId?: string;
     }): Promise<{
         [x: string]: string;
     }>;
@@ -984,23 +1002,23 @@ export class MantleClient {
      * @param {string} [params.discountId] - The ID of the discount to apply to the subscription
      * @param {string} params.returnUrl - The URL to redirect to after the subscription is complete
      * @param {string} [params.billingProvider] - The name of the billing provider to use, if none is provided, use sensible default
-     * @param {boolean} [params.useSavedPaymentMethod] - Whether to use the saved payment method for the subscription if available
      * @param {number} [params.trialDays] - The number of days to trial the subscription for
-     * @param {boolean} [params.hosted] - Whether or not to use Stripe checkout for the subscription. Not applicable for Shopify subscriptions as they are always hosted. Defaults to true
-     * @param {boolean} [params.requireBillingAddress] - (Stripe checkout only) Tell the Stripe Checkout Session to require a billing address. Defaults to false.
-     * @param {string} [params.email] - (Stripe checkout only) Prefill the Stripe customer's email address. Defaults to null.
-     * @param {Object.<string, string>} [params.metadata] - (Stripe checkout only) The metadata to attach to the subscription. Key-value pairs of metadata to attach to the subscription. Defaults to null.
+     * @param {boolean} [params.hosted] - Whether or not to use Stripe checkout for the subscription. Not applicable for Shopify subscriptions as they are always hosted. Defaults to `true`.
+     * @param {boolean} [params.useSavedPaymentMethod] - (Stripe only) Whether to use the saved payment method for the subscription if available. Defaults to `false`.
+     * @param {boolean} [params.requireBillingAddress] - (Stripe checkout only) Tell the Stripe Checkout Session to require a billing address. Defaults to `false`.
+     * @param {string} [params.email] - (Stripe checkout only) Prefill the Stripe customer's email address. Defaults to `null`.
+     * @param {Object.<string, string>} [params.metadata] - (Stripe checkout only) The metadata to attach to the subscription. Key-value pairs of metadata to attach to the subscription. Defaults to `null`.
      * @returns {Promise<Subscription>} a promise that resolves to the created subscription
      */
-    subscribe({ planId, planIds, discountId, returnUrl, billingProvider, useSavedPaymentMethod, trialDays, hosted, }: {
+    subscribe({ planId, planIds, discountId, returnUrl, billingProvider, trialDays, hosted, useSavedPaymentMethod, requireBillingAddress, email, metadata, }: {
         planId?: string;
         planIds?: string[];
         discountId?: string;
         returnUrl: string;
         billingProvider?: string;
-        useSavedPaymentMethod?: boolean;
         trialDays?: number;
         hosted?: boolean;
+        useSavedPaymentMethod?: boolean;
         requireBillingAddress?: boolean;
         email?: string;
         metadata?: {
