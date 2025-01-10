@@ -574,6 +574,110 @@ enum SubscriptionConfirmType {
   subscribe = "subscribe"
 }
 
+/**
+ * Parameters for the subscribe method, excluding the plan ID fields which are handled separately
+ */
+interface SubscribeParams {
+  /** The ID of the plan to subscribe to */
+  planId?: string;
+  /** List of plan IDs to subscribe to */
+  planIds?: string[];
+  /** The ID of the discount to apply to the subscription */
+  discountId?: string;
+  /** The URL to redirect to after the subscription is complete */
+  returnUrl?: string;
+  /** The name of the billing provider to use */
+  billingProvider?: string;
+  /** The number of days to trial the subscription for */
+  trialDays?: number;
+  /** Whether to use Stripe checkout for the subscription */
+  hosted?: boolean;
+  /** Whether to use the saved payment method */
+  useSavedPaymentMethod?: boolean;
+  /** The collection method to use for the subscription */
+  collectionMethod?: string;
+  /** The number of days until the subscription is due */
+  daysUntilDue?: number;
+  /** The payment method types to use for the subscription */
+  paymentMethodTypes?: string[];
+  /** Whether to automatically calculate tax for the subscription */
+  automaticTax?: boolean;
+  /** Tell the Stripe Checkout Session to require a billing address */
+  requireBillingAddress?: boolean;
+  /** Prefill the Stripe customer's email address */
+  email?: string;
+  /** The metadata to attach to the subscription */
+  metadata?: Record<string, string>;
+}
+
+/**
+ * Valid platform types for customer identification
+ */
+type Platform = "shopify" | "web" | "mantle";
+
+/**
+ * Base parameters for the identify method
+ */
+interface BaseIdentifyParams {
+  /** The platform the customer is on: "shopify", "web", or "mantle" */
+  platform: Platform;
+  /** The access token for the platform API, for Shopify apps, this should be the Shop access token */
+  accessToken?: string;
+  /** The name of the customer */
+  name?: string;
+  /** The email of the customer */
+  email?: string;
+  /** The name of the plan on the platform (Shopify plan name) */
+  platformPlanName?: string;
+  /** Custom fields to store on the customer, must be a JSON object */
+  customFields?: Record<string, any>;
+  /** Key-value pairs of features to override on the customer */
+  features?: Record<string, string>;
+  /** The date the customer was created, defaults to now if not provided */
+  createdAt?: Date;
+  /** True to rotate the customer API token and return the new value */
+  rotateApiToken?: boolean;
+  /** The tags to apply to the customer. Default operator is "replace" */
+  tags?: string[];
+  /** The map of fields to operators to use for the query */
+  operators?: Record<string, string>;
+  /** The address of the customer */
+  address?: Address;
+  /** The contacts of the customer */
+  contacts?: Contact[];
+  /** The default billing provider to use for the customer */
+  defaultBillingProvider?: string;
+  /** The Stripe ID of the customer */
+  stripeId?: string;
+}
+
+/**
+ * Parameters specific to Shopify platform identification
+ */
+type ShopifyIdentifyParams = {
+  /** The platform must be "shopify" */
+  platform: "shopify";
+  /** The unique ID of the customer on the app platform, for Shopify this should be the Shop ID */
+  platformId?: string;
+  /** The myshopify.com domain of the Shopify store */
+  myshopifyDomain?: string;
+} & BaseIdentifyParams & (
+    | { platformId: string }
+    | { myshopifyDomain: string }
+  );
+
+/**
+ * Parameters for web or mantle platforms
+ */
+type OtherPlatformIdentifyParams = {
+  /** The platform the customer is on ("web" or "mantle") */
+  platform: "web" | "mantle";
+  /** The unique ID of the customer on the app platform */
+  platformId?: string;
+  /** The domain of the customer's store */
+  myshopifyDomain?: string;
+} & BaseIdentifyParams;
+
 class MantleClient {
   private appId: string;
   private apiKey?: string;
@@ -632,7 +736,7 @@ class MantleClient {
   }
 
   /**
-   * Identify the customer with Mantle. One of `platformId` or `myshopifyDomain` are required.
+   * Identify the customer with Mantle. When platform is "shopify", one of `platformId` or `myshopifyDomain` is required.
    * @param params.platform - The platform the customer is on, defaults to shopify
    * @param params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
    * @param params.myshopifyDomain - The myshopify.com domain of the Shopify store
@@ -652,25 +756,9 @@ class MantleClient {
    * @param params.stripeId - The Stripe ID of the customer
    * @returns A promise that resolves to an object with the customer API token
    */
-  async identify(params: {
-    platform?: string;
-    platformId?: string;
-    myshopifyDomain?: string;
-    accessToken?: string;
-    name?: string;
-    email?: string;
-    platformPlanName?: string;
-    customFields?: Record<string, any>;
-    features?: Record<string, string>;
-    createdAt?: Date;
-    rotateApiToken?: boolean;
-    tags?: string[];
-    operators?: Record<string, string>;
-    address?: Address;
-    contacts?: Contact[];
-    defaultBillingProvider?: string;
-    stripeId?: string;
-  }): Promise<{ apiToken: string }> {
+  async identify(
+    params: ShopifyIdentifyParams | OtherPlatformIdentifyParams
+  ): Promise<{ apiToken: string }> {
     return await this.mantleRequest({
       path: "identify",
       method: "POST",
@@ -711,23 +799,17 @@ class MantleClient {
    * @param params.metadata - The metadata to attach to the subscription
    * @returns A promise that resolves to the created subscription
    */
-  async subscribe(params: {
-    planId?: string;
-    planIds?: string[];
-    discountId?: string;
-    returnUrl: string;
-    billingProvider?: string;
-    trialDays?: number;
-    hosted?: boolean;
-    useSavedPaymentMethod?: boolean;
-    collectionMethod?: string;
-    daysUntilDue?: number;
-    paymentMethodTypes?: string[];
-    automaticTax?: boolean;
-    requireBillingAddress?: boolean;
-    email?: string;
-    metadata?: Record<string, string>;
-  }): Promise<Subscription> {
+  async subscribe(
+    params:
+      | ({
+          planId: string;
+          planIds?: never;
+        } & Omit<SubscribeParams, 'planId' | 'planIds'>)
+      | ({
+          planId?: never;
+          planIds: string[];
+        } & Omit<SubscribeParams, 'planId' | 'planIds'>)
+  ): Promise<Subscription> {
     return await this.mantleRequest({
       path: "subscriptions",
       method: "POST",
@@ -805,7 +887,7 @@ class MantleClient {
    * @param params.returnUrl - The URL to redirect to after a checkout has completed
    * @returns A promise that resolves to the created SetupIntent with clientSecret
    */
-  async addPaymentMethod(params: { returnUrl: string }): Promise<SetupIntent> {
+  async addPaymentMethod(params: { returnUrl?: string }): Promise<SetupIntent> {
     return await this.mantleRequest({
       path: "payment_methods",
       method: "POST",

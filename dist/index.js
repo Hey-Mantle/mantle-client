@@ -108,7 +108,7 @@ var MantleClient = class {
     });
   }
   /**
-   * Identify the customer with Mantle. One of `platformId` or `myshopifyDomain` are required.
+   * Identify the customer with Mantle. When platform is "shopify", one of `platformId` or `myshopifyDomain` is required.
    * @param params.platform - The platform the customer is on, defaults to shopify
    * @param params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
    * @param params.myshopifyDomain - The myshopify.com domain of the Shopify store
