@@ -154,6 +154,10 @@ class MantleClient {
    * @param {number} [params.trialDays] - The number of days to trial the subscription for
    * @param {boolean} [params.hosted] - Whether or not to use Stripe checkout for the subscription. Not applicable for Shopify subscriptions as they are always hosted. Defaults to `true`.
    * @param {boolean} [params.useSavedPaymentMethod] - (Stripe only) Whether to use the saved payment method for the subscription if available. Defaults to `false`.
+   * @param {string} [params.collectionMethod] - (Stripe only) The collection method to use for the subscription. Defaults to `charge_automatically`.
+   * @param {number} [params.daysUntilDue] - (Stripe only) The number of days until the subscription is due. Defaults to `null`.
+   * @param {string[]} [params.paymentMethodTypes] - (Stripe only) The payment method types to use for the subscription. Defaults to `["card"]`.
+   * @param {boolean} [params.automaticTax] - (Stripe only) Whether to automatically calculate tax for the subscription. Defaults to `true`.
    * @param {boolean} [params.requireBillingAddress] - (Stripe checkout only) Tell the Stripe Checkout Session to require a billing address. Defaults to `false`.
    * @param {string} [params.email] - (Stripe checkout only) Prefill the Stripe customer's email address. Defaults to `null`.
    * @param {Object.<string, string>} [params.metadata] - (Stripe checkout only) The metadata to attach to the subscription. Key-value pairs of metadata to attach to the subscription. Defaults to `null`.
@@ -168,6 +172,10 @@ class MantleClient {
     trialDays,
     hosted = true,
     useSavedPaymentMethod = false,
+    collectionMethod = "charge_automatically",
+    daysUntilDue,
+    paymentMethodTypes = ["card"],
+    automaticTax = true,
     requireBillingAddress = false,
     email,
     metadata,
@@ -187,6 +195,10 @@ class MantleClient {
         requireBillingAddress,
         email,
         metadata,
+        collectionMethod,
+        daysUntilDue,
+        paymentMethodTypes,
+        automaticTax,
       },
     });
   }
