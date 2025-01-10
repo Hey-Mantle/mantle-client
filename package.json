@@ -1,12 +1,17 @@
 {
   "name": "@heymantle/client",
-  "version": "1.1.38",
+  "version": "1.1.39",
   "description": "Mantle API Client for JavaScript",
-  "main": "src/index.js",
-  "types": "src/types/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-and-publish": "npm install && npx tsc && npm publish"
+    "build-and-publish": "npm install && npm run build && npm publish"
   },
   "author": "jnormore",
   "license": "ISC",
@@ -15,6 +20,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.3",
+    "tsup": "^8.0.2"
   }
 }
