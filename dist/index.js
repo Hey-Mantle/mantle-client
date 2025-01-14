@@ -60,6 +60,7 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 var SubscriptionConfirmType = /* @__PURE__ */ ((SubscriptionConfirmType2) => {
   SubscriptionConfirmType2["finalize"] = "finalize";
+  SubscriptionConfirmType2["plan_change"] = "plan_change";
   SubscriptionConfirmType2["setup"] = "setup";
   SubscriptionConfirmType2["subscribe"] = "subscribe";
   return SubscriptionConfirmType2;

@@ -548,19 +548,26 @@ interface Contact {
 }
 
 /**
- * The action that will have to take place after a subscription is initialized
+ * The action that will have to take place after a subscription is initialized.
+ * Used by Stripe Billing only.
  */
 enum SubscriptionConfirmType {
   /** 
    * The subscription was created and one of two things will happen:
    * 1. If the subscription has a trial, the first invoice will be paid after the trial ends
    * 2. If the subscription does not have a trial, the first invoice will be paid immediately
-   * In both cases, the consumer should redirect to the `returnUrl` provided with the subscription to activate the subscription
+   * In both cases, the consumer can either redirect to the `confirmationUrl` provided with the subscription or refetch the customer object
    */
   finalize = "finalize",
 
   /**
-   * The subscription was created with a trial. The consumer should pass the returned `clientSecret` to Stripe Elements in order
+   * The subscription was either upgraded or downgraded and no more action is required.
+   * The consumer can either redirect to the `confirmationUrl` provided with the subscription or refetch the customer object
+   */
+  plan_change = "plan_change",
+
+  /**
+   * The subscription was created with a trial and requires a payment method. The consumer should pass the returned `clientSecret` to Stripe Elements in order
    * to collect payment method details and complete the subscription. The consumer should pass the `returnUrl` to the
    * `Stripe#confirmSetup` method to activate the subscription and vault the card. The first invoice will be paid after the trial ends.
    */
@@ -592,7 +599,7 @@ interface SubscribeParams {
   trialDays?: number;
   /** Whether to use Stripe checkout for the subscription */
   hosted?: boolean;
-  /** Whether to use the saved payment method */
+  /** Whether to use the saved payment method, defaults to true */
   useSavedPaymentMethod?: boolean;
   /** The collection method to use for the subscription */
   collectionMethod?: string;
@@ -600,7 +607,7 @@ interface SubscribeParams {
   daysUntilDue?: number;
   /** The payment method types to use for the subscription */
   paymentMethodTypes?: string[];
-  /** Whether to automatically calculate tax for the subscription */
+  /** Whether to automatically calculate tax for the subscription, defaults to false */
   automaticTax?: boolean;
   /** Tell the Stripe Checkout Session to require a billing address */
   requireBillingAddress?: boolean;
