@@ -127,6 +127,7 @@ var MantleClient = class {
    * @param params.contacts - The contacts of the customer
    * @param params.defaultBillingProvider - The default billing provider to use for the customer
    * @param params.stripeId - The Stripe ID of the customer
+   * @param params.merge - Indicate whether or not to merge an existing Stripe customer (found with the provided `stripeId`) into a different customer who was matched on `platformId` or `myshopifyDomain`
    * @returns A promise that resolves to an object with the customer API token
    */
   identify(params) {
