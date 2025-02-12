@@ -545,6 +545,13 @@ declare enum SubscriptionConfirmType {
     subscribe = "subscribe"
 }
 /**
+ * How to handle subscription creation in the absence of a payment method
+ * - `always`: require a payment method if none is attached regardless of whether there is a trial.
+ * - `if_required`: require a payment method if none is attached and there is no trial.
+ * - `on_upgrade`: require a payment method if none is attached and there is no trial, or if this is an upgrade.
+ */
+type RequirePaymentMethodOptions = "always" | "if_required" | "on_upgrade";
+/**
  * Parameters for the subscribe method, excluding the plan ID fields which are handled separately
  */
 interface SubscribeParams {
@@ -568,6 +575,8 @@ interface SubscribeParams {
     collectionMethod?: string;
     /** The number of days until the subscription is due */
     daysUntilDue?: number;
+    /** How to handle subscription creation in the absence of a payment method */
+    requirePaymentMethod?: RequirePaymentMethodOptions;
     /** The payment method types to use for the subscription */
     paymentMethodTypes?: string[];
     /** Whether to automatically calculate tax for the subscription, defaults to false */
@@ -704,6 +713,7 @@ declare class MantleClient {
      * @param params.useSavedPaymentMethod - Whether to use the saved payment method
      * @param params.collectionMethod - The collection method to use for the subscription
      * @param params.daysUntilDue - The number of days until the subscription is due
+     * @param params.requirePaymentMethod - How to handle subscription creation in the absence of a payment method
      * @param params.paymentMethodTypes - The payment method types to use for the subscription
      * @param params.automaticTax - Whether to automatically calculate tax for the subscription
      * @param params.requireBillingAddress - Tell the Stripe Checkout Session to require a billing address
@@ -804,4 +814,4 @@ declare class MantleClient {
     }>;
 }
 
-export { type Address, type AppliedDiscount, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type PaymentMethod, type Plan, type PlatformInvoice, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };
+export { type Address, type AppliedDiscount, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };

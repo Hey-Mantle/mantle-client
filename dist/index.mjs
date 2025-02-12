@@ -141,6 +141,7 @@ var MantleClient = class {
    * @param params.useSavedPaymentMethod - Whether to use the saved payment method
    * @param params.collectionMethod - The collection method to use for the subscription
    * @param params.daysUntilDue - The number of days until the subscription is due
+   * @param params.requirePaymentMethod - How to handle subscription creation in the absence of a payment method
    * @param params.paymentMethodTypes - The payment method types to use for the subscription
    * @param params.automaticTax - Whether to automatically calculate tax for the subscription
    * @param params.requireBillingAddress - Tell the Stripe Checkout Session to require a billing address
