@@ -586,8 +586,9 @@ enum SubscriptionConfirmType {
  * - `always`: require a payment method if none is attached regardless of whether there is a trial.
  * - `if_required`: require a payment method if none is attached and there is no trial.
  * - `on_upgrade`: require a payment method if none is attached and there is no trial, or if this is an upgrade.
+ * - `never`: never require a payment method.
  */
-type RequirePaymentMethodOptions = "always" | "if_required" | "on_upgrade";
+type RequirePaymentMethodOptions = "always" | "if_required" | "on_upgrade" | "never";
 
 /**
  * Parameters for the subscribe method, excluding the plan ID fields which are handled separately
