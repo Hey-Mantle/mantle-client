@@ -629,6 +629,22 @@ interface SubscribeParams {
 }
 
 /**
+ * The status of an invoice
+ */
+type InvoiceStatus = "draft" | "open" | "paid" | "uncollectible" | "void";
+
+/**
+ * Parameters for the listInvoices method
+ */
+interface ListInvoicesParams {
+  /** The page number to get, defaults to 0 */
+  page?: number;
+  /** The number of invoices to get per page, defaults to 10 */
+  limit?: number;
+  /** The status of the invoices to get */
+  status?: InvoiceStatus;
+}
+/**
  * Valid platform types for customer identification
  */
 type Platform = "shopify" | "web" | "mantle";
@@ -728,9 +744,8 @@ class MantleClient {
    */
   private async mantleRequest({ path, method = "GET", body }: MantleRequestParams): Promise<any> {
     try {
-      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${
-        body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
-      }`;
+      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
+        }`;
       const response = await fetch(url, {
         method,
         headers: {
@@ -744,8 +759,8 @@ class MantleClient {
         },
         ...(body &&
           method !== "GET" && {
-            body: JSON.stringify(body),
-          }),
+          body: JSON.stringify(body),
+        }),
       });
       const result = await response.json();
       return result;
@@ -824,13 +839,13 @@ class MantleClient {
   async subscribe(
     params:
       | ({
-          planId: string;
-          planIds?: never;
-        } & Omit<SubscribeParams, 'planId' | 'planIds'>)
+        planId: string;
+        planIds?: never;
+      } & Omit<SubscribeParams, 'planId' | 'planIds'>)
       | ({
-          planId?: never;
-          planIds: string[];
-        } & Omit<SubscribeParams, 'planId' | 'planIds'>)
+        planId?: never;
+        planIds: string[];
+      } & Omit<SubscribeParams, 'planId' | 'planIds'>)
   ): Promise<Subscription> {
     return await this.mantleRequest({
       path: "subscriptions",
@@ -944,17 +959,16 @@ class MantleClient {
    * Get a list of invoices for the current customer
    * @param params.page - The page number to get, defaults to 0
    * @param params.limit - The number of invoices to get per page, defaults to 10
+   * @param params.status - The status of the invoices to get
    * @returns A promise that resolves to the list of invoices
    */
-  async listInvoices(params: {
-    page?: number;
-    limit?: number;
-  } = {}): Promise<ListInvoicesResponse> {
+  async listInvoices(params: ListInvoicesParams = {}): Promise<ListInvoicesResponse> {
     return await this.mantleRequest({
       path: "invoices",
       body: {
         page: params.page ?? 0,
         limit: params.limit ?? 10,
+        ...(params.status ? { status: params.status } : {}),
       },
     });
   }

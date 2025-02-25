@@ -254,6 +254,7 @@ var MantleClient = class {
    * Get a list of invoices for the current customer
    * @param params.page - The page number to get, defaults to 0
    * @param params.limit - The number of invoices to get per page, defaults to 10
+   * @param params.status - The status of the invoices to get
    * @returns A promise that resolves to the list of invoices
    */
   listInvoices() {
@@ -261,10 +262,10 @@ var MantleClient = class {
       var _a, _b;
       return yield this.mantleRequest({
         path: "invoices",
-        body: {
+        body: __spreadValues({
           page: (_a = params.page) != null ? _a : 0,
           limit: (_b = params.limit) != null ? _b : 10
-        }
+        }, params.status ? { status: params.status } : {})
       });
     });
   }

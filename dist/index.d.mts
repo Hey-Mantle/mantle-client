@@ -590,6 +590,21 @@ interface SubscribeParams {
     metadata?: Record<string, string>;
 }
 /**
+ * The status of an invoice
+ */
+type InvoiceStatus = "draft" | "open" | "paid" | "uncollectible" | "void";
+/**
+ * Parameters for the listInvoices method
+ */
+interface ListInvoicesParams {
+    /** The page number to get, defaults to 0 */
+    page?: number;
+    /** The number of invoices to get per page, defaults to 10 */
+    limit?: number;
+    /** The status of the invoices to get */
+    status?: InvoiceStatus;
+}
+/**
  * Valid platform types for customer identification
  */
 type Platform = "shopify" | "web" | "mantle";
@@ -795,12 +810,10 @@ declare class MantleClient {
      * Get a list of invoices for the current customer
      * @param params.page - The page number to get, defaults to 0
      * @param params.limit - The number of invoices to get per page, defaults to 10
+     * @param params.status - The status of the invoices to get
      * @returns A promise that resolves to the list of invoices
      */
-    listInvoices(params?: {
-        page?: number;
-        limit?: number;
-    }): Promise<ListInvoicesResponse>;
+    listInvoices(params?: ListInvoicesParams): Promise<ListInvoicesResponse>;
     /**
      * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
      * @param params.type - The type of hosted session to create
