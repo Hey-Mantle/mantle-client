@@ -552,7 +552,7 @@ interface Contact {
  * Used by Stripe Billing only.
  */
 enum SubscriptionConfirmType {
-  /** 
+  /**
    * The subscription was created and one of two things will happen:
    * 1. If the subscription has a trial, the first invoice will be paid after the trial ends
    * 2. If the subscription does not have a trial, the first invoice will be paid immediately
@@ -771,6 +771,22 @@ class MantleClient {
   }
 
   /**
+   * Evaluates whether a feature is enabled based on its type and value
+   * @param feature - The feature to evaluate
+   * @param count - The count to evaluate against if the feature is a limit type
+   * @returns Whether the feature is considered enabled
+   */
+  private evaluateFeature({ feature, count = 0 }: { feature: Feature; count?: number }): boolean {
+    if (feature?.type === "boolean") {
+      return feature.value;
+    } else if (feature?.type === "limit") {
+      return count < feature.value || feature.value === -1;
+    }
+    return false;
+  };
+
+
+  /**
    * Identify the customer with Mantle. When platform is "shopify", one of `platformId` or `myshopifyDomain` is required.
    * @param params.platform - The platform the customer is on, defaults to shopify
    * @param params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
@@ -814,6 +830,38 @@ class MantleClient {
         ...(id ? { body: { id } } : {}),
       })
     ).customer;
+  }
+
+  /**
+   * Check if a feature is enabled for a customer
+   * @param params.customerId - The ID of the customer to evaluate the feature for. Only required if using the API key for authentication instead of the customer API token
+   * @param params.featureKey - The key of the feature to evaluate
+   * @param params.count - The count to evaluate against if the feature is a limit type
+   * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count
+   */
+  async isFeatureEnabled(params: { customerId?: string; featureKey: string, count?: number }): Promise<boolean> {
+    const customer = await this.getCustomer(params.customerId);
+    if (customer?.features[params.featureKey]) {
+      return this.evaluateFeature({
+        feature: customer.features[params.featureKey],
+        count: params.count,
+      });
+    }
+    return false;
+  }
+
+  /**
+   * Get the limit for a feature
+   * @param params.customerId - The ID of the customer to get the feature limit for. Only required if using the API key for authentication instead of the customer API token
+   * @param params.featureKey - The key of the feature to get the limit for
+   * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type
+   */
+  async limitForFeature(params: { customerId?: string; featureKey: string }): Promise<number> {
+    const customer = await this.getCustomer(params.customerId);
+    if (customer?.features[params.featureKey] && customer.features[params.featureKey].type === "limit") {
+      return customer.features[params.featureKey].value;
+    }
+    return -1;
   }
 
   /**
@@ -1019,4 +1067,4 @@ export {
   type HostedSession,
   type Address,
   type Contact,
-}; 
+};

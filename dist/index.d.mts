@@ -687,6 +687,13 @@ declare class MantleClient {
      */
     private mantleRequest;
     /**
+     * Evaluates whether a feature is enabled based on its type and value
+     * @param feature - The feature to evaluate
+     * @param count - The count to evaluate against if the feature is a limit type
+     * @returns Whether the feature is considered enabled
+     */
+    private evaluateFeature;
+    /**
      * Identify the customer with Mantle. When platform is "shopify", one of `platformId` or `myshopifyDomain` is required.
      * @param params.platform - The platform the customer is on, defaults to shopify
      * @param params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
@@ -717,6 +724,28 @@ declare class MantleClient {
      * @returns A promise that resolves to the current customer
      */
     getCustomer(id?: string): Promise<Customer>;
+    /**
+     * Check if a feature is enabled for a customer
+     * @param params.customerId - The ID of the customer to evaluate the feature for. Only required if using the API key for authentication instead of the customer API token
+     * @param params.featureKey - The key of the feature to evaluate
+     * @param params.count - The count to evaluate against if the feature is a limit type
+     * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count
+     */
+    isFeatureEnabled(params: {
+        customerId?: string;
+        featureKey: string;
+        count?: number;
+    }): Promise<boolean>;
+    /**
+     * Get the limit for a feature
+     * @param params.customerId - The ID of the customer to get the feature limit for. Only required if using the API key for authentication instead of the customer API token
+     * @param params.featureKey - The key of the feature to get the limit for
+     * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type
+     */
+    limitForFeature(params: {
+        customerId?: string;
+        featureKey: string;
+    }): Promise<number>;
     /**
      * Subscribe to a plan, or list of plans. Must provide either `planId` or `planIds`
      * @param params.planId - The ID of the plan to subscribe to
