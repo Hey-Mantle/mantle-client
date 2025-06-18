@@ -70,12 +70,19 @@ var MantleClient = class {
    * Creates a new MantleClient. If being used in the browser, or any frontend code, never use the apiKey parameter,
    * always use the customerApiToken for the customer that is currently authenticated on the frontend.
    */
-  constructor({ appId, apiKey, customerApiToken, apiUrl = "https://appapi.heymantle.com/v1" }) {
+  constructor({
+    appId,
+    apiKey,
+    customerApiToken,
+    apiUrl = "https://appapi.heymantle.com/v1"
+  }) {
     if (!appId) {
       throw new Error("MantleClient appId is required");
     }
     if (typeof window !== "undefined" && apiKey) {
-      throw new Error("MantleClient apiKey should never be used in the browser");
+      throw new Error(
+        "MantleClient apiKey should never be used in the browser"
+      );
     }
     this.appId = appId;
     this.apiKey = apiKey;
@@ -87,7 +94,11 @@ var MantleClient = class {
    * @private
    */
   mantleRequest(_0) {
-    return __async(this, arguments, function* ({ path, method = "GET", body }) {
+    return __async(this, arguments, function* ({
+      path,
+      method = "GET",
+      body
+    }) {
       try {
         const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${body && method === "GET" ? `?${new URLSearchParams(body)}` : ""}`;
         const response = yield fetch(url, __spreadValues({
@@ -114,7 +125,10 @@ var MantleClient = class {
    * @param count - The count to evaluate against if the feature is a limit type
    * @returns Whether the feature is considered enabled
    */
-  evaluateFeature({ feature, count = 0 }) {
+  evaluateFeature({
+    feature,
+    count = 0
+  }) {
     if ((feature == null ? void 0 : feature.type) === "boolean") {
       return feature.value;
     } else if ((feature == null ? void 0 : feature.type) === "limit") {
