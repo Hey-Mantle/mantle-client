@@ -59,6 +59,22 @@ interface Customer {
     reviews: Review[];
     /** The current billing status of the customer */
     billingStatus: "none" | "active" | "trialing" | "canceled" | "frozen";
+    /** The apps the customer has installed */
+    apps: App[];
+}
+interface App {
+    /** The ID of the app */
+    id: string;
+    /** The name of the app */
+    name: string;
+    /** The description of the app */
+    description?: string;
+    /** The slug of the app */
+    slug: string;
+    /** The display name of the app */
+    displayName: string;
+    /** The icon URL of the app */
+    iconUrl: string;
 }
 /**
  * Various details about a Mantle subscription plan
@@ -680,7 +696,7 @@ declare class MantleClient {
      * Creates a new MantleClient. If being used in the browser, or any frontend code, never use the apiKey parameter,
      * always use the customerApiToken for the customer that is currently authenticated on the frontend.
      */
-    constructor({ appId, apiKey, customerApiToken, apiUrl }: MantleClientParams);
+    constructor({ appId, apiKey, customerApiToken, apiUrl, }: MantleClientParams);
     /**
      * Makes a request to the Mantle API
      * @private
@@ -769,10 +785,10 @@ declare class MantleClient {
     subscribe(params: ({
         planId: string;
         planIds?: never;
-    } & Omit<SubscribeParams, 'planId' | 'planIds'>) | ({
+    } & Omit<SubscribeParams, "planId" | "planIds">) | ({
         planId?: never;
         planIds: string[];
-    } & Omit<SubscribeParams, 'planId' | 'planIds'>)): Promise<Subscription>;
+    } & Omit<SubscribeParams, "planId" | "planIds">)): Promise<Subscription>;
     /**
      * Cancel the current subscription
      * @param params.cancelReason - The reason for cancelling the subscription

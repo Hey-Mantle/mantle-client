@@ -71,8 +71,24 @@ interface Customer {
   reviews: Review[];
   /** The current billing status of the customer */
   billingStatus: "none" | "active" | "trialing" | "canceled" | "frozen";
+  /** The apps the customer has installed */
+  apps: App[];
 }
 
+interface App {
+  /** The ID of the app */
+  id: string;
+  /** The name of the app */
+  name: string;
+  /** The description of the app */
+  description?: string;
+  /** The slug of the app */
+  slug: string;
+  /** The display name of the app */
+  displayName: string;
+  /** The icon URL of the app */
+  iconUrl: string;
+}
 /**
  * Various details about a Mantle subscription plan
  */
@@ -84,7 +100,12 @@ interface Plan {
   /** The description of the plan */
   description?: string;
   /** The availability of the plan, one of "public", "customerTag", "customer", "shopifyPlan" or "hidden" */
-  availability: "public" | "customerTag" | "customer" | "shopifyPlan" | "hidden";
+  availability:
+    | "public"
+    | "customerTag"
+    | "customer"
+    | "shopifyPlan"
+    | "hidden";
   /** The type of the plan, one of "base" or "add_on" */
   type: "base" | "add_on";
   /** The currency code of the plan */
@@ -578,7 +599,7 @@ enum SubscriptionConfirmType {
    * to collect payment method details and complete the subscription. The consumer should pass the `returnUrl` to the
    * `Stripe#confirmPayment` method to activate the subscription and vault the card. The first invoice will be paid immediately.
    */
-  subscribe = "subscribe"
+  subscribe = "subscribe",
 }
 
 /**
@@ -588,7 +609,11 @@ enum SubscriptionConfirmType {
  * - `on_upgrade`: require a payment method if none is attached and there is no trial, or if this is an upgrade.
  * - `never`: never require a payment method.
  */
-type RequirePaymentMethodOptions = "always" | "if_required" | "on_upgrade" | "never";
+type RequirePaymentMethodOptions =
+  | "always"
+  | "if_required"
+  | "on_upgrade"
+  | "never";
 
 /**
  * Parameters for the subscribe method, excluding the plan ID fields which are handled separately
@@ -697,10 +722,8 @@ type ShopifyIdentifyParams = {
   platformId?: string;
   /** The myshopify.com domain of the Shopify store */
   myshopifyDomain?: string;
-} & BaseIdentifyParams & (
-    | { platformId: string }
-    | { myshopifyDomain: string }
-  );
+} & BaseIdentifyParams &
+  ({ platformId: string } | { myshopifyDomain: string });
 
 /**
  * Parameters for web or mantle platforms
@@ -724,12 +747,19 @@ class MantleClient {
    * Creates a new MantleClient. If being used in the browser, or any frontend code, never use the apiKey parameter,
    * always use the customerApiToken for the customer that is currently authenticated on the frontend.
    */
-  constructor({ appId, apiKey, customerApiToken, apiUrl = "https://appapi.heymantle.com/v1" }: MantleClientParams) {
+  constructor({
+    appId,
+    apiKey,
+    customerApiToken,
+    apiUrl = "https://appapi.heymantle.com/v1",
+  }: MantleClientParams) {
     if (!appId) {
       throw new Error("MantleClient appId is required");
     }
     if (typeof window !== "undefined" && apiKey) {
-      throw new Error("MantleClient apiKey should never be used in the browser");
+      throw new Error(
+        "MantleClient apiKey should never be used in the browser"
+      );
     }
 
     this.appId = appId;
@@ -742,10 +772,15 @@ class MantleClient {
    * Makes a request to the Mantle API
    * @private
    */
-  private async mantleRequest({ path, method = "GET", body }: MantleRequestParams): Promise<any> {
+  private async mantleRequest({
+    path,
+    method = "GET",
+    body,
+  }: MantleRequestParams): Promise<any> {
     try {
-      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
-        }`;
+      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${
+        body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
+      }`;
       const response = await fetch(url, {
         method,
         headers: {
@@ -759,8 +794,8 @@ class MantleClient {
         },
         ...(body &&
           method !== "GET" && {
-          body: JSON.stringify(body),
-        }),
+            body: JSON.stringify(body),
+          }),
       });
       const result = await response.json();
       return result;
@@ -776,15 +811,20 @@ class MantleClient {
    * @param count - The count to evaluate against if the feature is a limit type
    * @returns Whether the feature is considered enabled
    */
-  private evaluateFeature({ feature, count = 0 }: { feature: Feature; count?: number }): boolean {
+  private evaluateFeature({
+    feature,
+    count = 0,
+  }: {
+    feature: Feature;
+    count?: number;
+  }): boolean {
     if (feature?.type === "boolean") {
       return feature.value;
     } else if (feature?.type === "limit") {
       return count < feature.value || feature.value === -1;
     }
     return false;
-  };
-
+  }
 
   /**
    * Identify the customer with Mantle. When platform is "shopify", one of `platformId` or `myshopifyDomain` is required.
@@ -839,7 +879,11 @@ class MantleClient {
    * @param params.count - The count to evaluate against if the feature is a limit type
    * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count
    */
-  async isFeatureEnabled(params: { customerId?: string; featureKey: string, count?: number }): Promise<boolean> {
+  async isFeatureEnabled(params: {
+    customerId?: string;
+    featureKey: string;
+    count?: number;
+  }): Promise<boolean> {
     const customer = await this.getCustomer(params.customerId);
     if (customer?.features[params.featureKey]) {
       return this.evaluateFeature({
@@ -856,9 +900,15 @@ class MantleClient {
    * @param params.featureKey - The key of the feature to get the limit for
    * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type
    */
-  async limitForFeature(params: { customerId?: string; featureKey: string }): Promise<number> {
+  async limitForFeature(params: {
+    customerId?: string;
+    featureKey: string;
+  }): Promise<number> {
     const customer = await this.getCustomer(params.customerId);
-    if (customer?.features[params.featureKey] && customer.features[params.featureKey].type === "limit") {
+    if (
+      customer?.features[params.featureKey] &&
+      customer.features[params.featureKey].type === "limit"
+    ) {
       return customer.features[params.featureKey].value;
     }
     return -1;
@@ -887,13 +937,13 @@ class MantleClient {
   async subscribe(
     params:
       | ({
-        planId: string;
-        planIds?: never;
-      } & Omit<SubscribeParams, 'planId' | 'planIds'>)
+          planId: string;
+          planIds?: never;
+        } & Omit<SubscribeParams, "planId" | "planIds">)
       | ({
-        planId?: never;
-        planIds: string[];
-      } & Omit<SubscribeParams, 'planId' | 'planIds'>)
+          planId?: never;
+          planIds: string[];
+        } & Omit<SubscribeParams, "planId" | "planIds">)
   ): Promise<Subscription> {
     return await this.mantleRequest({
       path: "subscriptions",
@@ -907,7 +957,9 @@ class MantleClient {
    * @param params.cancelReason - The reason for cancelling the subscription
    * @returns A promise that resolves to the cancelled subscription
    */
-  async cancelSubscription(params?: { cancelReason?: string }): Promise<Subscription> {
+  async cancelSubscription(params?: {
+    cancelReason?: string;
+  }): Promise<Subscription> {
     return await this.mantleRequest({
       path: "subscriptions",
       method: "DELETE",
@@ -923,7 +975,10 @@ class MantleClient {
    * @param params.cappedAmount - The capped amount of the usage charge
    * @returns A promise that resolves to the updated subscription
    */
-  async updateSubscription(params: { id: string; cappedAmount: number }): Promise<Subscription> {
+  async updateSubscription(params: {
+    id: string;
+    cappedAmount: number;
+  }): Promise<Subscription> {
     return await this.mantleRequest({
       path: "subscriptions",
       method: "PUT",
@@ -1010,7 +1065,9 @@ class MantleClient {
    * @param params.status - The status of the invoices to get
    * @returns A promise that resolves to the list of invoices
    */
-  async listInvoices(params: ListInvoicesParams = {}): Promise<ListInvoicesResponse> {
+  async listInvoices(
+    params: ListInvoicesParams = {}
+  ): Promise<ListInvoicesResponse> {
     return await this.mantleRequest({
       path: "invoices",
       body: {
@@ -1046,25 +1103,25 @@ class MantleClient {
 export {
   MantleClient,
   SubscriptionConfirmType,
-  type Customer,
-  type Plan,
-  type Subscription,
-  type RequirePaymentMethodOptions,
-  type PaymentMethod,
-  type Feature,
-  type UsageMetric,
-  type UsageCharge,
+  type Address,
   type AppliedDiscount,
+  type Contact,
+  type Customer,
   type Discount,
-  type UsageCredit,
-  type Review,
+  type Feature,
+  type HostedSession,
   type Invoice,
-  type PlatformInvoice,
   type InvoiceLineItem,
   type ListInvoicesResponse,
-  type UsageEvent,
+  type PaymentMethod,
+  type Plan,
+  type PlatformInvoice,
+  type RequirePaymentMethodOptions,
+  type Review,
   type SetupIntent,
-  type HostedSession,
-  type Address,
-  type Contact,
+  type Subscription,
+  type UsageCharge,
+  type UsageCredit,
+  type UsageEvent,
+  type UsageMetric,
 };
