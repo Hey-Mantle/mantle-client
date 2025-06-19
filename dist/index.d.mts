@@ -604,6 +604,21 @@ interface ListInvoicesParams {
     /** The status of the invoices to get */
     status?: InvoiceStatus;
 }
+type Notify = {
+    id: string;
+    title: string;
+    body: string;
+    ctaLabel: string;
+    ctaUrl: string;
+    ctaOpenInNewTab: boolean;
+    preview: string;
+    createdAt: string;
+    updatedAt: string;
+};
+interface ListNotifiesResponse {
+    notifies: Notify[];
+    hasMore: boolean;
+}
 /**
  * Valid platform types for customer identification
  */
@@ -680,7 +695,7 @@ declare class MantleClient {
      * Creates a new MantleClient. If being used in the browser, or any frontend code, never use the apiKey parameter,
      * always use the customerApiToken for the customer that is currently authenticated on the frontend.
      */
-    constructor({ appId, apiKey, customerApiToken, apiUrl }: MantleClientParams);
+    constructor({ appId, apiKey, customerApiToken, apiUrl, }: MantleClientParams);
     /**
      * Makes a request to the Mantle API
      * @private
@@ -769,10 +784,10 @@ declare class MantleClient {
     subscribe(params: ({
         planId: string;
         planIds?: never;
-    } & Omit<SubscribeParams, 'planId' | 'planIds'>) | ({
+    } & Omit<SubscribeParams, "planId" | "planIds">) | ({
         planId?: never;
         planIds: string[];
-    } & Omit<SubscribeParams, 'planId' | 'planIds'>)): Promise<Subscription>;
+    } & Omit<SubscribeParams, "planId" | "planIds">)): Promise<Subscription>;
     /**
      * Cancel the current subscription
      * @param params.cancelReason - The reason for cancelling the subscription
@@ -855,6 +870,19 @@ declare class MantleClient {
     }): Promise<HostedSession & {
         error?: any;
     }>;
+    /**
+     * Send notifications for a specific notification template id
+     * @param params.templateId - The ID of the notification template to send
+     * @returns A promise that resolves to the list of notified customers
+     */
+    notify(params: {
+        templateId: string;
+    }): Promise<string[]>;
+    /**
+     * Get list of notifications for the current customer
+     * @returns A promise that resolves to the list of notifications
+     */
+    listNotifies(): Promise<ListNotifiesResponse>;
 }
 
-export { type Address, type AppliedDiscount, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };
+export { type Address, type AppliedDiscount, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };

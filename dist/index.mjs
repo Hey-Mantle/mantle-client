@@ -48,12 +48,19 @@ var MantleClient = class {
    * Creates a new MantleClient. If being used in the browser, or any frontend code, never use the apiKey parameter,
    * always use the customerApiToken for the customer that is currently authenticated on the frontend.
    */
-  constructor({ appId, apiKey, customerApiToken, apiUrl = "https://appapi.heymantle.com/v1" }) {
+  constructor({
+    appId,
+    apiKey,
+    customerApiToken,
+    apiUrl = "https://appapi.heymantle.com/v1"
+  }) {
     if (!appId) {
       throw new Error("MantleClient appId is required");
     }
     if (typeof window !== "undefined" && apiKey) {
-      throw new Error("MantleClient apiKey should never be used in the browser");
+      throw new Error(
+        "MantleClient apiKey should never be used in the browser"
+      );
     }
     this.appId = appId;
     this.apiKey = apiKey;
@@ -65,7 +72,11 @@ var MantleClient = class {
    * @private
    */
   mantleRequest(_0) {
-    return __async(this, arguments, function* ({ path, method = "GET", body }) {
+    return __async(this, arguments, function* ({
+      path,
+      method = "GET",
+      body
+    }) {
       try {
         const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${body && method === "GET" ? `?${new URLSearchParams(body)}` : ""}`;
         const response = yield fetch(url, __spreadValues({
@@ -92,7 +103,10 @@ var MantleClient = class {
    * @param count - The count to evaluate against if the feature is a limit type
    * @returns Whether the feature is considered enabled
    */
-  evaluateFeature({ feature, count = 0 }) {
+  evaluateFeature({
+    feature,
+    count = 0
+  }) {
     if ((feature == null ? void 0 : feature.type) === "boolean") {
       return feature.value;
     } else if ((feature == null ? void 0 : feature.type) === "limit") {
@@ -331,6 +345,33 @@ var MantleClient = class {
         body: params
       });
       return __spreadValues(__spreadValues({}, (response == null ? void 0 : response.session) || {}), (response == null ? void 0 : response.error) || { error: response.error });
+    });
+  }
+  /**
+   * Send notifications for a specific notification template id
+   * @param params.templateId - The ID of the notification template to send
+   * @returns A promise that resolves to the list of notified customers
+   */
+  notify(params) {
+    return __async(this, null, function* () {
+      const response = yield this.mantleRequest({
+        path: `notify_templates/${params.templateId}/notify`,
+        method: "POST",
+        body: params
+      });
+      return response.notifies;
+    });
+  }
+  /**
+   * Get list of notifications for the current customer
+   * @returns A promise that resolves to the list of notifications
+   */
+  listNotifies() {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: "notifies",
+        method: "GET"
+      });
     });
   }
 };
