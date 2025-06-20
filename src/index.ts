@@ -658,15 +658,22 @@ export type Notify = {
   id: string;
   title: string;
   body: string;
-  ctaLabel: string;
-  ctaUrl: string;
-  ctaOpenInNewTab: boolean;
+  cta:
+    | {
+        type: "url";
+        url: string;
+        openInNewTab: boolean;
+      }
+    | {
+        type: "flow";
+        flowId: string;
+      };
   preview: string;
   createdAt: string;
   updatedAt: string;
 };
 
-interface ListNotifiesResponse {
+interface ListNotificationsResponse {
   notifies: Notify[];
   hasMore: boolean;
 }
@@ -1120,10 +1127,22 @@ class MantleClient {
    * Get list of notifications for the current customer
    * @returns A promise that resolves to the list of notifications
    */
-  async listNotifies(): Promise<ListNotifiesResponse> {
+  async listNotifications(): Promise<ListNotificationsResponse> {
     return await this.mantleRequest({
-      path: "notifies",
+      path: "notifications",
       method: "GET",
+    });
+  }
+
+  /**
+   * Trigger a notification CTA for a specific notification id
+   * @param params.id - The ID of the notification to trigger the CTA for
+   * @returns A promise that resolves to the triggered notification
+   */
+  async triggerNotificationCta(params: { id: string }): Promise<Notify> {
+    return await this.mantleRequest({
+      path: `notifications/${params.id}/trigger`,
+      method: "POST",
     });
   }
 }
