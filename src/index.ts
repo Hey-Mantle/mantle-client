@@ -1139,7 +1139,9 @@ class MantleClient {
    * @param params.id - The ID of the notification to trigger the CTA for
    * @returns A promise that resolves to the triggered notification
    */
-  async triggerNotificationCta(params: { id: string }): Promise<Notify> {
+  async triggerNotificationCta(params: {
+    id: string;
+  }): Promise<{ success: boolean }> {
     return await this.mantleRequest({
       path: `notifications/${params.id}/trigger`,
       method: "POST",

@@ -388,11 +388,24 @@ var MantleClient = class {
    * Get list of notifications for the current customer
    * @returns A promise that resolves to the list of notifications
    */
-  listNotifies() {
+  listNotifications() {
     return __async(this, null, function* () {
       return yield this.mantleRequest({
-        path: "notifies",
+        path: "notifications",
         method: "GET"
+      });
+    });
+  }
+  /**
+   * Trigger a notification CTA for a specific notification id
+   * @param params.id - The ID of the notification to trigger the CTA for
+   * @returns A promise that resolves to the triggered notification
+   */
+  triggerNotificationCta(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: `notifications/${params.id}/trigger`,
+        method: "POST"
       });
     });
   }

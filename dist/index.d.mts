@@ -608,14 +608,19 @@ type Notify = {
     id: string;
     title: string;
     body: string;
-    ctaLabel: string;
-    ctaUrl: string;
-    ctaOpenInNewTab: boolean;
+    cta: {
+        type: "url";
+        url: string;
+        openInNewTab: boolean;
+    } | {
+        type: "flow";
+        flowId: string;
+    };
     preview: string;
     createdAt: string;
     updatedAt: string;
 };
-interface ListNotifiesResponse {
+interface ListNotificationsResponse {
     notifies: Notify[];
     hasMore: boolean;
 }
@@ -882,7 +887,17 @@ declare class MantleClient {
      * Get list of notifications for the current customer
      * @returns A promise that resolves to the list of notifications
      */
-    listNotifies(): Promise<ListNotifiesResponse>;
+    listNotifications(): Promise<ListNotificationsResponse>;
+    /**
+     * Trigger a notification CTA for a specific notification id
+     * @param params.id - The ID of the notification to trigger the CTA for
+     * @returns A promise that resolves to the triggered notification
+     */
+    triggerNotificationCta(params: {
+        id: string;
+    }): Promise<{
+        success: boolean;
+    }>;
 }
 
 export { type Address, type AppliedDiscount, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };
