@@ -624,6 +624,18 @@ interface ListNotificationsResponse {
     notifies: Notify[];
     hasMore: boolean;
 }
+type NotificationTemplate = {
+    id: string;
+    name: string;
+    title: string;
+    preview: string;
+    body: string;
+    deliveryMethod: "flow" | "manual";
+};
+interface ListNotificationTemplatesResponse {
+    notificationTemplates: NotificationTemplate[];
+    hasMore: boolean;
+}
 /**
  * Valid platform types for customer identification
  */
@@ -889,12 +901,31 @@ declare class MantleClient {
      */
     listNotifications(): Promise<ListNotificationsResponse>;
     /**
+     * Get list of notification templates
+     * @returns A promise that resolves to the list of notification templates
+     */
+    listNotificationTemplates(): Promise<ListNotificationTemplatesResponse>;
+    /**
      * Trigger a notification CTA for a specific notification id
      * @param params.id - The ID of the notification to trigger the CTA for
      * @returns A promise that resolves to the triggered notification
      */
     triggerNotificationCta(params: {
         id: string;
+    }): Promise<{
+        success: boolean;
+    }>;
+    /**
+     * Update a notification to set the readAt and dismissedAt dates
+     * @param params.id - The ID of the notification to update
+     * @param params.readAt - The date the notification was read
+     * @param params.dismissedAt - The date the notification was dismissed
+     * @returns A promise that resolves if the update was successful
+     */
+    updateNotification(params: {
+        id: string;
+        readAt?: Date;
+        dismissedAt?: Date;
     }): Promise<{
         success: boolean;
     }>;

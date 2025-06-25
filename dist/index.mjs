@@ -355,7 +355,7 @@ var MantleClient = class {
   notify(params) {
     return __async(this, null, function* () {
       const response = yield this.mantleRequest({
-        path: `notify_templates/${params.templateId}/notify`,
+        path: `notification_templates/${params.templateId}/notify`,
         method: "POST",
         body: params
       });
@@ -375,6 +375,17 @@ var MantleClient = class {
     });
   }
   /**
+   * Get list of notification templates
+   * @returns A promise that resolves to the list of notification templates
+   */
+  listNotificationTemplates() {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: "notification_templates"
+      });
+    });
+  }
+  /**
    * Trigger a notification CTA for a specific notification id
    * @param params.id - The ID of the notification to trigger the CTA for
    * @returns A promise that resolves to the triggered notification
@@ -384,6 +395,25 @@ var MantleClient = class {
       return yield this.mantleRequest({
         path: `notifications/${params.id}/trigger`,
         method: "POST"
+      });
+    });
+  }
+  /**
+   * Update a notification to set the readAt and dismissedAt dates
+   * @param params.id - The ID of the notification to update
+   * @param params.readAt - The date the notification was read
+   * @param params.dismissedAt - The date the notification was dismissed
+   * @returns A promise that resolves if the update was successful
+   */
+  updateNotification(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: `notifications/${params.id}`,
+        method: "PUT",
+        body: {
+          readAt: params.readAt,
+          dismissedAt: params.dismissedAt
+        }
       });
     });
   }

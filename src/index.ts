@@ -678,6 +678,20 @@ interface ListNotificationsResponse {
   hasMore: boolean;
 }
 
+type NotificationTemplate = {
+  id: string;
+  name: string;
+  title: string;
+  preview: string;
+  body: string;
+  deliveryMethod: "flow" | "manual";
+};
+
+interface ListNotificationTemplatesResponse {
+  notificationTemplates: NotificationTemplate[];
+  hasMore: boolean;
+}
+
 /**
  * Valid platform types for customer identification
  */
@@ -1115,7 +1129,7 @@ class MantleClient {
    */
   async notify(params: { templateId: string }): Promise<string[]> {
     const response = await this.mantleRequest({
-      path: `notify_templates/${params.templateId}/notify`,
+      path: `notification_templates/${params.templateId}/notify`,
       method: "POST",
       body: params,
     });
@@ -1135,6 +1149,16 @@ class MantleClient {
   }
 
   /**
+   * Get list of notification templates
+   * @returns A promise that resolves to the list of notification templates
+   */
+  async listNotificationTemplates(): Promise<ListNotificationTemplatesResponse> {
+    return await this.mantleRequest({
+      path: "notification_templates",
+    });
+  }
+
+  /**
    * Trigger a notification CTA for a specific notification id
    * @param params.id - The ID of the notification to trigger the CTA for
    * @returns A promise that resolves to the triggered notification
@@ -1145,6 +1169,28 @@ class MantleClient {
     return await this.mantleRequest({
       path: `notifications/${params.id}/trigger`,
       method: "POST",
+    });
+  }
+
+  /**
+   * Update a notification to set the readAt and dismissedAt dates
+   * @param params.id - The ID of the notification to update
+   * @param params.readAt - The date the notification was read
+   * @param params.dismissedAt - The date the notification was dismissed
+   * @returns A promise that resolves if the update was successful
+   */
+  async updateNotification(params: {
+    id: string;
+    readAt?: Date;
+    dismissedAt?: Date;
+  }): Promise<{ success: boolean }> {
+    return await this.mantleRequest({
+      path: `notifications/${params.id}`,
+      method: "PUT",
+      body: {
+        readAt: params.readAt,
+        dismissedAt: params.dismissedAt,
+      },
     });
   }
 }
