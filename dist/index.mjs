@@ -417,6 +417,32 @@ var MantleClient = class {
       });
     });
   }
+  /**
+   * Get the checklist for the current customer
+   * @returns A promise that resolves to the customer's checklist, or null if no checklist is found
+   */
+  getChecklist() {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: "checklists",
+        method: "GET"
+      });
+    });
+  }
+  /**
+   * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
+   * @param params.checklistId - The ID of the checklist to complete the step for
+   * @param params.checklistStepId - The ID of the checklist step to complete
+   * @returns A promise that resolves if the step was completed successfully
+   */
+  completeChecklistStep(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: `checklists/${params.checklistId}/steps/${params.checklistStepId}/complete`,
+        method: "POST"
+      });
+    });
+  }
 };
 export {
   MantleClient,

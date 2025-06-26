@@ -3,6 +3,44 @@
  * @description The official NodeJS client for the Mantle App API
  */
 /**
+ * A checklist item for onboarding or feature adoption
+ */
+interface ChecklistStep {
+    /** The ID of the checklist item */
+    id: string;
+    /** The name of the checklist item */
+    name: string;
+    /** The description of the checklist item */
+    description?: string;
+    /** Whether the checklist item is completed */
+    completed: boolean;
+    /** The image URL associated with the checklist item */
+    imageUrl?: string | null;
+    /** The date the checklist item was completed */
+    completedAt?: string | null;
+}
+/**
+ * A checklist for customer onboarding or feature adoption
+ */
+interface Checklist {
+    /** The ID of the checklist */
+    id: string;
+    /** The name of the checklist */
+    name: string;
+    /** The checklist steps */
+    steps: ChecklistStep[];
+    /** The number of completed steps */
+    completedSteps: number;
+    /** The total number of steps */
+    totalSteps: number;
+    /** The percentage of completion for the checklist */
+    completionPercentage: number;
+    /** Whether the checklist is completed */
+    completed: boolean;
+    /** The date the checklist was completed */
+    completedAt?: string | null;
+}
+/**
  * Configuration parameters for initializing a new MantleClient
  */
 interface MantleClientParams {
@@ -929,6 +967,23 @@ declare class MantleClient {
     }): Promise<{
         success: boolean;
     }>;
+    /**
+     * Get the checklist for the current customer
+     * @returns A promise that resolves to the customer's checklist, or null if no checklist is found
+     */
+    getChecklist(): Promise<Checklist | null>;
+    /**
+     * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
+     * @param params.checklistId - The ID of the checklist to complete the step for
+     * @param params.checklistStepId - The ID of the checklist step to complete
+     * @returns A promise that resolves if the step was completed successfully
+     */
+    completeChecklistStep(params: {
+        checklistId: string;
+        checklistStepId: string;
+    }): Promise<{
+        success: boolean;
+    }>;
 }
 
-export { type Address, type AppliedDiscount, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };
+export { type Address, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };
