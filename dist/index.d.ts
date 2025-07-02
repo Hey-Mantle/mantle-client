@@ -18,6 +18,8 @@ interface ChecklistStep {
     imageUrl?: string | null;
     /** The date the checklist item was completed */
     completedAt?: string | null;
+    /** Whether the checklist item can be manually completed by the customer */
+    allowManualCompletion: boolean;
 }
 /**
  * A checklist for customer onboarding or feature adoption
