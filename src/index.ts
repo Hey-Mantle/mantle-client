@@ -1167,9 +1167,13 @@ class MantleClient {
   /**
    * Send notifications for a specific notification template id
    * @param params.templateId - The ID of the notification template to send
+   * @param params.test - Whether to send the notification as a test. If true, the notification will only be sent to the current customer and will have isTest set to true.
    * @returns A promise that resolves to the list of notified customers
    */
-  async notify(params: { templateId: string }): Promise<string[]> {
+  async notify(params: {
+    templateId: string;
+    test?: boolean;
+  }): Promise<string[]> {
     const response = await this.mantleRequest({
       path: `notification_templates/${params.templateId}/notify`,
       method: "POST",
