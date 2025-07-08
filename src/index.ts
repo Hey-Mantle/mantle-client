@@ -14,6 +14,10 @@ interface ChecklistStep {
   name: string;
   /** The description of the checklist item */
   description?: string;
+  /** The HTML description of the checklist item */
+  descriptionHtml?: string;
+  /** The JSON description of the checklist item */
+  descriptionJson?: any;
   /** Whether the checklist item is completed */
   completed: boolean;
   /** The image URL associated with the checklist item */
