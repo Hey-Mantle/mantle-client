@@ -389,11 +389,12 @@ var MantleClient = class {
    * Get list of notifications for the current customer
    * @returns A promise that resolves to the list of notifications
    */
-  listNotifications() {
+  listNotifications(params) {
     return __async(this, null, function* () {
       return yield this.mantleRequest({
         path: "notifications",
-        method: "GET"
+        method: "GET",
+        body: params
       });
     });
   }

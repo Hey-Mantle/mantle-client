@@ -1191,10 +1191,13 @@ class MantleClient {
    * Get list of notifications for the current customer
    * @returns A promise that resolves to the list of notifications
    */
-  async listNotifications(): Promise<ListNotificationsResponse> {
+  async listNotifications(params?: {
+    email?: string;
+  }): Promise<ListNotificationsResponse> {
     return await this.mantleRequest({
       path: "notifications",
       method: "GET",
+      body: params,
     });
   }
 

@@ -945,7 +945,9 @@ declare class MantleClient {
      * Get list of notifications for the current customer
      * @returns A promise that resolves to the list of notifications
      */
-    listNotifications(): Promise<ListNotificationsResponse>;
+    listNotifications(params?: {
+        email?: string;
+    }): Promise<ListNotificationsResponse>;
     /**
      * Get list of notification templates
      * @returns A promise that resolves to the list of notification templates
