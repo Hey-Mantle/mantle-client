@@ -1354,6 +1354,8 @@ export {
   type Review,
   type SetupIntent,
   type Subscription,
+  type SuccessResponse,
+  type UsageMetricReport,
   type UsageCharge,
   type UsageCredit,
   type UsageEvent,
