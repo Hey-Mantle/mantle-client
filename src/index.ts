@@ -4,6 +4,14 @@
  */
 
 // TypeScript Interfaces
+
+/**
+ * Error response from Mantle API
+ */
+interface MantleError {
+  error: string;
+}
+
 /**
  * A checklist item for onboarding or feature adoption
  */
@@ -131,11 +139,11 @@ interface Plan {
   description?: string;
   /** The availability of the plan, one of "public", "customerTag", "customer", "shopifyPlan" or "hidden" */
   availability:
-    | "public"
-    | "customerTag"
-    | "customer"
-    | "shopifyPlan"
-    | "hidden";
+  | "public"
+  | "customerTag"
+  | "customer"
+  | "shopifyPlan"
+  | "hidden";
   /** The type of the plan, one of "base" or "add_on" */
   type: "base" | "add_on";
   /** The currency code of the plan */
@@ -705,15 +713,15 @@ export type Notify = {
   title: string;
   body: string;
   cta:
-    | {
-        type: "url";
-        url: string;
-        openInNewTab: boolean;
-      }
-    | {
-        type: "flow";
-        flowId: string;
-      };
+  | {
+    type: "url";
+    url: string;
+    openInNewTab: boolean;
+  }
+  | {
+    type: "flow";
+    flowId: string;
+  };
   preview: string;
   createdAt: string;
   updatedAt: string;
@@ -731,6 +739,10 @@ type NotificationTemplate = {
   preview: string;
   body: string;
   deliveryMethod: "flow" | "manual";
+};
+
+type IdentifyResponse = {
+  apiToken: string;
 };
 
 interface ListNotificationTemplatesResponse {
@@ -841,15 +853,14 @@ class MantleClient {
    * Makes a request to the Mantle API
    * @private
    */
-  private async mantleRequest({
+  private async mantleRequest<T = any>({
     path,
     method = "GET",
     body,
-  }: MantleRequestParams): Promise<any> {
+  }: MantleRequestParams): Promise<T | MantleError> {
     try {
-      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${
-        body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
-      }`;
+      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
+        }`;
       const response = await fetch(url, {
         method,
         headers: {
@@ -863,11 +874,18 @@ class MantleClient {
         },
         ...(body &&
           method !== "GET" && {
-            body: JSON.stringify(body),
-          }),
+          body: JSON.stringify(body),
+        }),
       });
+
       const result = await response.json();
-      return result;
+
+      // Check if the response indicates an error
+      if (!response.ok || (result && typeof result === 'object' && 'error' in result)) {
+        return result as MantleError;
+      }
+
+      return result as T;
     } catch (e: any) {
       console.error(`[mantleRequest] ${path} error: ${e.message}`);
       throw e;
@@ -915,12 +933,12 @@ class MantleClient {
    * @param params.defaultBillingProvider - The default billing provider to use for the customer
    * @param params.stripeId - The Stripe ID of the customer
    * @param params.merge - Indicate whether or not to merge an existing Stripe customer (found with the provided `stripeId`) into a different customer who was matched on `platformId` or `myshopifyDomain`
-   * @returns A promise that resolves to an object with the customer API token
+   * @returns A promise that resolves to an object with the customer API token or an error
    */
   async identify(
     params: ShopifyIdentifyParams | OtherPlatformIdentifyParams
-  ): Promise<{ apiToken: string }> {
-    return await this.mantleRequest({
+  ): Promise<IdentifyResponse | MantleError> {
+    return await this.mantleRequest<IdentifyResponse>({
       path: "identify",
       method: "POST",
       body: params,
@@ -930,15 +948,19 @@ class MantleClient {
   /**
    * Get the customer associated with the current customer API token
    * @param id - The ID of the customer to get. Only required if using the API key for authentication instead of the customer API token
-   * @returns A promise that resolves to the current customer
+   * @returns A promise that resolves to the current customer or an error
    */
-  async getCustomer(id?: string): Promise<Customer> {
-    return (
-      await this.mantleRequest({
-        path: "customer",
-        ...(id ? { body: { id } } : {}),
-      })
-    ).customer;
+  async getCustomer(id?: string): Promise<Customer | MantleError> {
+    const response = await this.mantleRequest<{ customer: Customer }>({
+      path: "customer",
+      ...(id ? { body: { id } } : {}),
+    });
+
+    if ('error' in response) {
+      return response;
+    }
+
+    return response.customer;
   }
 
   /**
@@ -946,14 +968,17 @@ class MantleClient {
    * @param params.customerId - The ID of the customer to evaluate the feature for. Only required if using the API key for authentication instead of the customer API token
    * @param params.featureKey - The key of the feature to evaluate
    * @param params.count - The count to evaluate against if the feature is a limit type
-   * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count
+   * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count, or an error
    */
   async isFeatureEnabled(params: {
     customerId?: string;
     featureKey: string;
     count?: number;
-  }): Promise<boolean> {
+  }): Promise<boolean | MantleError> {
     const customer = await this.getCustomer(params.customerId);
+    if ('error' in customer) {
+      return customer;
+    }
     if (customer?.features[params.featureKey]) {
       return this.evaluateFeature({
         feature: customer.features[params.featureKey],
@@ -967,13 +992,16 @@ class MantleClient {
    * Get the limit for a feature
    * @param params.customerId - The ID of the customer to get the feature limit for. Only required if using the API key for authentication instead of the customer API token
    * @param params.featureKey - The key of the feature to get the limit for
-   * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type
+   * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type, or an error
    */
   async limitForFeature(params: {
     customerId?: string;
     featureKey: string;
-  }): Promise<number> {
+  }): Promise<number | MantleError> {
     const customer = await this.getCustomer(params.customerId);
+    if ('error' in customer) {
+      return customer;
+    }
     if (
       customer?.features[params.featureKey] &&
       customer.features[params.featureKey].type === "limit"
@@ -1001,20 +1029,20 @@ class MantleClient {
    * @param params.requireBillingAddress - Tell the Stripe Checkout Session to require a billing address
    * @param params.email - Prefill the Stripe customer's email address
    * @param params.metadata - The metadata to attach to the subscription
-   * @returns A promise that resolves to the created subscription
+   * @returns A promise that resolves to the created subscription or an error
    */
   async subscribe(
     params:
       | ({
-          planId: string;
-          planIds?: never;
-        } & Omit<SubscribeParams, "planId" | "planIds">)
+        planId: string;
+        planIds?: never;
+      } & Omit<SubscribeParams, "planId" | "planIds">)
       | ({
-          planId?: never;
-          planIds: string[];
-        } & Omit<SubscribeParams, "planId" | "planIds">)
-  ): Promise<Subscription> {
-    return await this.mantleRequest({
+        planId?: never;
+        planIds: string[];
+      } & Omit<SubscribeParams, "planId" | "planIds">)
+  ): Promise<Subscription | MantleError> {
+    return await this.mantleRequest<Subscription>({
       path: "subscriptions",
       method: "POST",
       body: params,
@@ -1024,12 +1052,12 @@ class MantleClient {
   /**
    * Cancel the current subscription
    * @param params.cancelReason - The reason for cancelling the subscription
-   * @returns A promise that resolves to the cancelled subscription
+   * @returns A promise that resolves to the cancelled subscription or an error
    */
   async cancelSubscription(params?: {
     cancelReason?: string;
-  }): Promise<Subscription> {
-    return await this.mantleRequest({
+  }): Promise<Subscription | MantleError> {
+    return await this.mantleRequest<Subscription>({
       path: "subscriptions",
       method: "DELETE",
       ...(params?.cancelReason && {
@@ -1042,13 +1070,13 @@ class MantleClient {
    * Update the subscription
    * @param params.id - The ID of the subscription to update
    * @param params.cappedAmount - The capped amount of the usage charge
-   * @returns A promise that resolves to the updated subscription
+   * @returns A promise that resolves to the updated subscription or an error
    */
   async updateSubscription(params: {
     id: string;
     cappedAmount: number;
-  }): Promise<Subscription> {
-    return await this.mantleRequest({
+  }): Promise<Subscription | MantleError> {
+    return await this.mantleRequest<Subscription>({
       path: "subscriptions",
       method: "PUT",
       body: params,
@@ -1062,7 +1090,7 @@ class MantleClient {
    * @param params.timestamp - The timestamp of the event, leave blank to use the current time
    * @param params.customerId - Required if customerApiToken is not used for authentication
    * @param params.properties - The event properties
-   * @returns A promise that resolves to true if the event was sent successfully
+   * @returns A promise that resolves to true if the event was sent successfully, or an error
    */
   async sendUsageEvent(params: {
     eventId?: string;
@@ -1070,8 +1098,8 @@ class MantleClient {
     timestamp?: Date;
     customerId?: string;
     properties?: Record<string, any>;
-  }): Promise<boolean> {
-    return await this.mantleRequest({
+  }): Promise<boolean | MantleError> {
+    return await this.mantleRequest<boolean>({
       path: "usage_events",
       method: "POST",
       body: params,
@@ -1081,10 +1109,10 @@ class MantleClient {
   /**
    * Send multiple usage events of the same type in bulk
    * @param params.events - The events to send
-   * @returns A promise that resolves to true if the events were sent successfully
+   * @returns A promise that resolves to true if the events were sent successfully, or an error
    */
-  async sendUsageEvents(params: { events: UsageEvent[] }): Promise<boolean> {
-    return await this.mantleRequest({
+  async sendUsageEvents(params: { events: UsageEvent[] }): Promise<boolean | MantleError> {
+    return await this.mantleRequest<boolean>({
       path: "usage_events",
       method: "POST",
       body: params,
@@ -1094,10 +1122,10 @@ class MantleClient {
   /**
    * Initial step to start the process of connecting a new payment method from an external billing provider
    * @param params.returnUrl - The URL to redirect to after a checkout has completed
-   * @returns A promise that resolves to the created SetupIntent with clientSecret
+   * @returns A promise that resolves to the created SetupIntent with clientSecret, or an error
    */
-  async addPaymentMethod(params: { returnUrl?: string }): Promise<SetupIntent> {
-    return await this.mantleRequest({
+  async addPaymentMethod(params: { returnUrl?: string }): Promise<SetupIntent | MantleError> {
+    return await this.mantleRequest<SetupIntent>({
       path: "payment_methods",
       method: "POST",
       ...(params.returnUrl && {
@@ -1111,13 +1139,13 @@ class MantleClient {
    * @param params.id - The usage metric id
    * @param params.period - The interval to get the report for
    * @param params.customerId - The customer ID to get the report for
-   * @returns A promise that resolves to the usage metric report
+   * @returns A promise that resolves to the usage metric report or an error
    */
   async getUsageMetricReport(params: {
     id: string;
     period?: string;
     customerId?: string;
-  }): Promise<any> {
+  }): Promise<any | MantleError> {
     return await this.mantleRequest({
       path: `usage_events/${params.id}/report`,
       body: {
@@ -1132,12 +1160,12 @@ class MantleClient {
    * @param params.page - The page number to get, defaults to 0
    * @param params.limit - The number of invoices to get per page, defaults to 10
    * @param params.status - The status of the invoices to get
-   * @returns A promise that resolves to the list of invoices
+   * @returns A promise that resolves to the list of invoices or an error
    */
   async listInvoices(
     params: ListInvoicesParams = {}
-  ): Promise<ListInvoicesResponse> {
-    return await this.mantleRequest({
+  ): Promise<ListInvoicesResponse | MantleError> {
+    return await this.mantleRequest<ListInvoicesResponse>({
       path: "invoices",
       body: {
         page: params.page ?? 0,
@@ -1151,50 +1179,60 @@ class MantleClient {
    * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
    * @param params.type - The type of hosted session to create
    * @param params.config - The configuration for the hosted session
-   * @returns A promise that resolves to the hosted session with a url property
+   * @returns A promise that resolves to the hosted session with a url property or an error
    */
   async createHostedSession(params: {
     type: string;
     config: Record<string, any>;
-  }): Promise<HostedSession & { error?: any }> {
-    const response = await this.mantleRequest({
+  }): Promise<HostedSession | MantleError> {
+    const response = await this.mantleRequest<{ session?: HostedSession; error?: any }>({
       path: "hosted_sessions",
       method: "POST",
       body: params,
     });
-    return {
-      ...(response?.session || {}),
-      ...(response?.error || { error: response.error }),
-    };
+
+    if ('error' in response && response.error) {
+      return { error: response.error };
+    }
+
+    if ('session' in response && response.session) {
+      return response.session;
+    }
+
+    return { id: '', url: '' };
   }
 
   /**
    * Send notifications for a specific notification template id
    * @param params.templateId - The ID of the notification template to send
    * @param params.test - Whether to send the notification as a test. If true, the notification will only be sent to the current customer and will have isTest set to true.
-   * @returns A promise that resolves to the list of notified customers
+   * @returns A promise that resolves to the list of notified customers or an error
    */
   async notify(params: {
     templateId: string;
     test?: boolean;
-  }): Promise<string[]> {
-    const response = await this.mantleRequest({
+  }): Promise<string[] | MantleError> {
+    const response = await this.mantleRequest<{ notifies: string[] }>({
       path: `notification_templates/${params.templateId}/notify`,
       method: "POST",
       body: params,
     });
+
+    if ('error' in response) {
+      return response;
+    }
 
     return response.notifies;
   }
 
   /**
    * Get list of notifications for the current customer
-   * @returns A promise that resolves to the list of notifications
+   * @returns A promise that resolves to the list of notifications or an error
    */
   async listNotifications(params?: {
     email?: string;
-  }): Promise<ListNotificationsResponse> {
-    return await this.mantleRequest({
+  }): Promise<ListNotificationsResponse | MantleError> {
+    return await this.mantleRequest<ListNotificationsResponse>({
       path: "notifications",
       method: "GET",
       body: params,
@@ -1203,10 +1241,10 @@ class MantleClient {
 
   /**
    * Get list of notification templates
-   * @returns A promise that resolves to the list of notification templates
+   * @returns A promise that resolves to the list of notification templates or an error
    */
-  async listNotificationTemplates(): Promise<ListNotificationTemplatesResponse> {
-    return await this.mantleRequest({
+  async listNotificationTemplates(): Promise<ListNotificationTemplatesResponse | MantleError> {
+    return await this.mantleRequest<ListNotificationTemplatesResponse>({
       path: "notification_templates",
     });
   }
@@ -1214,12 +1252,12 @@ class MantleClient {
   /**
    * Trigger a notification CTA for a specific notification id
    * @param params.id - The ID of the notification to trigger the CTA for
-   * @returns A promise that resolves to the triggered notification
+   * @returns A promise that resolves to the triggered notification or an error
    */
   async triggerNotificationCta(params: {
     id: string;
-  }): Promise<{ success: boolean }> {
-    return await this.mantleRequest({
+  }): Promise<{ success: boolean } | MantleError> {
+    return await this.mantleRequest<{ success: boolean }>({
       path: `notifications/${params.id}/trigger`,
       method: "POST",
     });
@@ -1230,14 +1268,14 @@ class MantleClient {
    * @param params.id - The ID of the notification to update
    * @param params.readAt - The date the notification was read
    * @param params.dismissedAt - The date the notification was dismissed
-   * @returns A promise that resolves if the update was successful
+   * @returns A promise that resolves if the update was successful or an error
    */
   async updateNotification(params: {
     id: string;
     readAt?: Date;
     dismissedAt?: Date;
-  }): Promise<{ success: boolean }> {
-    return await this.mantleRequest({
+  }): Promise<{ success: boolean } | MantleError> {
+    return await this.mantleRequest<{ success: boolean }>({
       path: `notifications/${params.id}`,
       method: "PUT",
       body: {
@@ -1249,10 +1287,10 @@ class MantleClient {
 
   /**
    * Get the checklist for the current customer
-   * @returns A promise that resolves to the customer's checklist, or null if no checklist is found
+   * @returns A promise that resolves to the customer's checklist, or null if no checklist is found, or an error
    */
-  async getChecklist(): Promise<Checklist | null> {
-    return await this.mantleRequest({
+  async getChecklist(): Promise<Checklist | null | MantleError> {
+    return await this.mantleRequest<Checklist | null>({
       path: "checklists",
       method: "GET",
     });
@@ -1262,13 +1300,13 @@ class MantleClient {
    * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
    * @param params.checklistId - The ID of the checklist to complete the step for
    * @param params.checklistStepId - The ID of the checklist step to complete
-   * @returns A promise that resolves if the step was completed successfully
+   * @returns A promise that resolves if the step was completed successfully or an error
    */
   async completeChecklistStep(params: {
     checklistId: string;
     checklistStepId: string;
-  }): Promise<{ success: boolean }> {
-    return await this.mantleRequest({
+  }): Promise<{ success: boolean } | MantleError> {
+    return await this.mantleRequest<{ success: boolean }>({
       path: `checklists/${params.checklistId}/steps/${params.checklistStepId}/complete`,
       method: "POST",
     });
@@ -1287,9 +1325,11 @@ export {
   type Discount,
   type Feature,
   type HostedSession,
+  type IdentifyResponse,
   type Invoice,
   type InvoiceLineItem,
   type ListInvoicesResponse,
+  type MantleError,
   type PaymentMethod,
   type Plan,
   type PlatformInvoice,

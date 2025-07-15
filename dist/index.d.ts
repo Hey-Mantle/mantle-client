@@ -3,6 +3,12 @@
  * @description The official NodeJS client for the Mantle App API
  */
 /**
+ * Error response from Mantle API
+ */
+interface MantleError {
+    error: string;
+}
+/**
  * A checklist item for onboarding or feature adoption
  */
 interface ChecklistStep {
@@ -676,6 +682,9 @@ type NotificationTemplate = {
     body: string;
     deliveryMethod: "flow" | "manual";
 };
+type IdentifyResponse = {
+    apiToken: string;
+};
 interface ListNotificationTemplatesResponse {
     notificationTemplates: NotificationTemplate[];
     hasMore: boolean;
@@ -789,39 +798,37 @@ declare class MantleClient {
      * @param params.defaultBillingProvider - The default billing provider to use for the customer
      * @param params.stripeId - The Stripe ID of the customer
      * @param params.merge - Indicate whether or not to merge an existing Stripe customer (found with the provided `stripeId`) into a different customer who was matched on `platformId` or `myshopifyDomain`
-     * @returns A promise that resolves to an object with the customer API token
+     * @returns A promise that resolves to an object with the customer API token or an error
      */
-    identify(params: ShopifyIdentifyParams | OtherPlatformIdentifyParams): Promise<{
-        apiToken: string;
-    }>;
+    identify(params: ShopifyIdentifyParams | OtherPlatformIdentifyParams): Promise<IdentifyResponse | MantleError>;
     /**
      * Get the customer associated with the current customer API token
      * @param id - The ID of the customer to get. Only required if using the API key for authentication instead of the customer API token
-     * @returns A promise that resolves to the current customer
+     * @returns A promise that resolves to the current customer or an error
      */
-    getCustomer(id?: string): Promise<Customer>;
+    getCustomer(id?: string): Promise<Customer | MantleError>;
     /**
      * Check if a feature is enabled for a customer
      * @param params.customerId - The ID of the customer to evaluate the feature for. Only required if using the API key for authentication instead of the customer API token
      * @param params.featureKey - The key of the feature to evaluate
      * @param params.count - The count to evaluate against if the feature is a limit type
-     * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count
+     * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count, or an error
      */
     isFeatureEnabled(params: {
         customerId?: string;
         featureKey: string;
         count?: number;
-    }): Promise<boolean>;
+    }): Promise<boolean | MantleError>;
     /**
      * Get the limit for a feature
      * @param params.customerId - The ID of the customer to get the feature limit for. Only required if using the API key for authentication instead of the customer API token
      * @param params.featureKey - The key of the feature to get the limit for
-     * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type
+     * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type, or an error
      */
     limitForFeature(params: {
         customerId?: string;
         featureKey: string;
-    }): Promise<number>;
+    }): Promise<number | MantleError>;
     /**
      * Subscribe to a plan, or list of plans. Must provide either `planId` or `planIds`
      * @param params.planId - The ID of the plan to subscribe to
@@ -840,7 +847,7 @@ declare class MantleClient {
      * @param params.requireBillingAddress - Tell the Stripe Checkout Session to require a billing address
      * @param params.email - Prefill the Stripe customer's email address
      * @param params.metadata - The metadata to attach to the subscription
-     * @returns A promise that resolves to the created subscription
+     * @returns A promise that resolves to the created subscription or an error
      */
     subscribe(params: ({
         planId: string;
@@ -848,25 +855,25 @@ declare class MantleClient {
     } & Omit<SubscribeParams, "planId" | "planIds">) | ({
         planId?: never;
         planIds: string[];
-    } & Omit<SubscribeParams, "planId" | "planIds">)): Promise<Subscription>;
+    } & Omit<SubscribeParams, "planId" | "planIds">)): Promise<Subscription | MantleError>;
     /**
      * Cancel the current subscription
      * @param params.cancelReason - The reason for cancelling the subscription
-     * @returns A promise that resolves to the cancelled subscription
+     * @returns A promise that resolves to the cancelled subscription or an error
      */
     cancelSubscription(params?: {
         cancelReason?: string;
-    }): Promise<Subscription>;
+    }): Promise<Subscription | MantleError>;
     /**
      * Update the subscription
      * @param params.id - The ID of the subscription to update
      * @param params.cappedAmount - The capped amount of the usage charge
-     * @returns A promise that resolves to the updated subscription
+     * @returns A promise that resolves to the updated subscription or an error
      */
     updateSubscription(params: {
         id: string;
         cappedAmount: number;
-    }): Promise<Subscription>;
+    }): Promise<Subscription | MantleError>;
     /**
      * Send a usage event
      * @param params.eventId - The ID of the event
@@ -874,7 +881,7 @@ declare class MantleClient {
      * @param params.timestamp - The timestamp of the event, leave blank to use the current time
      * @param params.customerId - Required if customerApiToken is not used for authentication
      * @param params.properties - The event properties
-     * @returns A promise that resolves to true if the event was sent successfully
+     * @returns A promise that resolves to true if the event was sent successfully, or an error
      */
     sendUsageEvent(params: {
         eventId?: string;
@@ -882,93 +889,91 @@ declare class MantleClient {
         timestamp?: Date;
         customerId?: string;
         properties?: Record<string, any>;
-    }): Promise<boolean>;
+    }): Promise<boolean | MantleError>;
     /**
      * Send multiple usage events of the same type in bulk
      * @param params.events - The events to send
-     * @returns A promise that resolves to true if the events were sent successfully
+     * @returns A promise that resolves to true if the events were sent successfully, or an error
      */
     sendUsageEvents(params: {
         events: UsageEvent[];
-    }): Promise<boolean>;
+    }): Promise<boolean | MantleError>;
     /**
      * Initial step to start the process of connecting a new payment method from an external billing provider
      * @param params.returnUrl - The URL to redirect to after a checkout has completed
-     * @returns A promise that resolves to the created SetupIntent with clientSecret
+     * @returns A promise that resolves to the created SetupIntent with clientSecret, or an error
      */
     addPaymentMethod(params: {
         returnUrl?: string;
-    }): Promise<SetupIntent>;
+    }): Promise<SetupIntent | MantleError>;
     /**
      * Get report of a usage metric over time intervals
      * @param params.id - The usage metric id
      * @param params.period - The interval to get the report for
      * @param params.customerId - The customer ID to get the report for
-     * @returns A promise that resolves to the usage metric report
+     * @returns A promise that resolves to the usage metric report or an error
      */
     getUsageMetricReport(params: {
         id: string;
         period?: string;
         customerId?: string;
-    }): Promise<any>;
+    }): Promise<any | MantleError>;
     /**
      * Get a list of invoices for the current customer
      * @param params.page - The page number to get, defaults to 0
      * @param params.limit - The number of invoices to get per page, defaults to 10
      * @param params.status - The status of the invoices to get
-     * @returns A promise that resolves to the list of invoices
+     * @returns A promise that resolves to the list of invoices or an error
      */
-    listInvoices(params?: ListInvoicesParams): Promise<ListInvoicesResponse>;
+    listInvoices(params?: ListInvoicesParams): Promise<ListInvoicesResponse | MantleError>;
     /**
      * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
      * @param params.type - The type of hosted session to create
      * @param params.config - The configuration for the hosted session
-     * @returns A promise that resolves to the hosted session with a url property
+     * @returns A promise that resolves to the hosted session with a url property or an error
      */
     createHostedSession(params: {
         type: string;
         config: Record<string, any>;
-    }): Promise<HostedSession & {
-        error?: any;
-    }>;
+    }): Promise<HostedSession | MantleError>;
     /**
      * Send notifications for a specific notification template id
      * @param params.templateId - The ID of the notification template to send
      * @param params.test - Whether to send the notification as a test. If true, the notification will only be sent to the current customer and will have isTest set to true.
-     * @returns A promise that resolves to the list of notified customers
+     * @returns A promise that resolves to the list of notified customers or an error
      */
     notify(params: {
         templateId: string;
         test?: boolean;
-    }): Promise<string[]>;
+    }): Promise<string[] | MantleError>;
     /**
      * Get list of notifications for the current customer
-     * @returns A promise that resolves to the list of notifications
+     * @returns A promise that resolves to the list of notifications or an error
      */
     listNotifications(params?: {
         email?: string;
-    }): Promise<ListNotificationsResponse>;
+    }): Promise<ListNotificationsResponse | MantleError>;
     /**
      * Get list of notification templates
-     * @returns A promise that resolves to the list of notification templates
+     * @returns A promise that resolves to the list of notification templates or an error
      */
-    listNotificationTemplates(): Promise<ListNotificationTemplatesResponse>;
+    listNotificationTemplates(): Promise<ListNotificationTemplatesResponse | MantleError>;
     /**
      * Trigger a notification CTA for a specific notification id
      * @param params.id - The ID of the notification to trigger the CTA for
-     * @returns A promise that resolves to the triggered notification
+     * @returns A promise that resolves to the triggered notification or an error
      */
     triggerNotificationCta(params: {
         id: string;
     }): Promise<{
         success: boolean;
-    }>;
+    } | MantleError>;
     /**
      * Update a notification to set the readAt and dismissedAt dates
      * @param params.id - The ID of the notification to update
      * @param params.readAt - The date the notification was read
      * @param params.dismissedAt - The date the notification was dismissed
-     * @returns A promise that resolves if the update was successful
+     * @returns A promise that resolves if the update was successful or an error
      */
     updateNotification(params: {
         id: string;
@@ -976,24 +981,24 @@ declare class MantleClient {
         dismissedAt?: Date;
     }): Promise<{
         success: boolean;
-    }>;
+    } | MantleError>;
     /**
      * Get the checklist for the current customer
-     * @returns A promise that resolves to the customer's checklist, or null if no checklist is found
+     * @returns A promise that resolves to the customer's checklist, or null if no checklist is found, or an error
      */
-    getChecklist(): Promise<Checklist | null>;
+    getChecklist(): Promise<Checklist | null | MantleError>;
     /**
      * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
      * @param params.checklistId - The ID of the checklist to complete the step for
      * @param params.checklistStepId - The ID of the checklist step to complete
-     * @returns A promise that resolves if the step was completed successfully
+     * @returns A promise that resolves if the step was completed successfully or an error
      */
     completeChecklistStep(params: {
         checklistId: string;
         checklistStepId: string;
     }): Promise<{
         success: boolean;
-    }>;
+    } | MantleError>;
 }
 
-export { type Address, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type HostedSession, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };
+export { type Address, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };

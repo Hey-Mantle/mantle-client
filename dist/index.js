@@ -112,6 +112,9 @@ var MantleClient = class {
           body: JSON.stringify(body)
         }));
         const result = yield response.json();
+        if (!response.ok || result && typeof result === "object" && "error" in result) {
+          return result;
+        }
         return result;
       } catch (e) {
         console.error(`[mantleRequest] ${path} error: ${e.message}`);
@@ -156,7 +159,7 @@ var MantleClient = class {
    * @param params.defaultBillingProvider - The default billing provider to use for the customer
    * @param params.stripeId - The Stripe ID of the customer
    * @param params.merge - Indicate whether or not to merge an existing Stripe customer (found with the provided `stripeId`) into a different customer who was matched on `platformId` or `myshopifyDomain`
-   * @returns A promise that resolves to an object with the customer API token
+   * @returns A promise that resolves to an object with the customer API token or an error
    */
   identify(params) {
     return __async(this, null, function* () {
@@ -170,13 +173,17 @@ var MantleClient = class {
   /**
    * Get the customer associated with the current customer API token
    * @param id - The ID of the customer to get. Only required if using the API key for authentication instead of the customer API token
-   * @returns A promise that resolves to the current customer
+   * @returns A promise that resolves to the current customer or an error
    */
   getCustomer(id) {
     return __async(this, null, function* () {
-      return (yield this.mantleRequest(__spreadValues({
+      const response = yield this.mantleRequest(__spreadValues({
         path: "customer"
-      }, id ? { body: { id } } : {}))).customer;
+      }, id ? { body: { id } } : {}));
+      if ("error" in response) {
+        return response;
+      }
+      return response.customer;
     });
   }
   /**
@@ -184,11 +191,14 @@ var MantleClient = class {
    * @param params.customerId - The ID of the customer to evaluate the feature for. Only required if using the API key for authentication instead of the customer API token
    * @param params.featureKey - The key of the feature to evaluate
    * @param params.count - The count to evaluate against if the feature is a limit type
-   * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count
+   * @returns A promise that resolves to whether the feature is enabled or the limit is less than the count, or an error
    */
   isFeatureEnabled(params) {
     return __async(this, null, function* () {
       const customer = yield this.getCustomer(params.customerId);
+      if ("error" in customer) {
+        return customer;
+      }
       if (customer == null ? void 0 : customer.features[params.featureKey]) {
         return this.evaluateFeature({
           feature: customer.features[params.featureKey],
@@ -202,11 +212,14 @@ var MantleClient = class {
    * Get the limit for a feature
    * @param params.customerId - The ID of the customer to get the feature limit for. Only required if using the API key for authentication instead of the customer API token
    * @param params.featureKey - The key of the feature to get the limit for
-   * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type
+   * @returns A promise that resolves to the limit for the feature. -1 if no customer, no feature, or the feature is not a limit type, or an error
    */
   limitForFeature(params) {
     return __async(this, null, function* () {
       const customer = yield this.getCustomer(params.customerId);
+      if ("error" in customer) {
+        return customer;
+      }
       if ((customer == null ? void 0 : customer.features[params.featureKey]) && customer.features[params.featureKey].type === "limit") {
         return customer.features[params.featureKey].value;
       }
@@ -231,7 +244,7 @@ var MantleClient = class {
    * @param params.requireBillingAddress - Tell the Stripe Checkout Session to require a billing address
    * @param params.email - Prefill the Stripe customer's email address
    * @param params.metadata - The metadata to attach to the subscription
-   * @returns A promise that resolves to the created subscription
+   * @returns A promise that resolves to the created subscription or an error
    */
   subscribe(params) {
     return __async(this, null, function* () {
@@ -245,7 +258,7 @@ var MantleClient = class {
   /**
    * Cancel the current subscription
    * @param params.cancelReason - The reason for cancelling the subscription
-   * @returns A promise that resolves to the cancelled subscription
+   * @returns A promise that resolves to the cancelled subscription or an error
    */
   cancelSubscription(params) {
     return __async(this, null, function* () {
@@ -261,7 +274,7 @@ var MantleClient = class {
    * Update the subscription
    * @param params.id - The ID of the subscription to update
    * @param params.cappedAmount - The capped amount of the usage charge
-   * @returns A promise that resolves to the updated subscription
+   * @returns A promise that resolves to the updated subscription or an error
    */
   updateSubscription(params) {
     return __async(this, null, function* () {
@@ -279,7 +292,7 @@ var MantleClient = class {
    * @param params.timestamp - The timestamp of the event, leave blank to use the current time
    * @param params.customerId - Required if customerApiToken is not used for authentication
    * @param params.properties - The event properties
-   * @returns A promise that resolves to true if the event was sent successfully
+   * @returns A promise that resolves to true if the event was sent successfully, or an error
    */
   sendUsageEvent(params) {
     return __async(this, null, function* () {
@@ -293,7 +306,7 @@ var MantleClient = class {
   /**
    * Send multiple usage events of the same type in bulk
    * @param params.events - The events to send
-   * @returns A promise that resolves to true if the events were sent successfully
+   * @returns A promise that resolves to true if the events were sent successfully, or an error
    */
   sendUsageEvents(params) {
     return __async(this, null, function* () {
@@ -307,7 +320,7 @@ var MantleClient = class {
   /**
    * Initial step to start the process of connecting a new payment method from an external billing provider
    * @param params.returnUrl - The URL to redirect to after a checkout has completed
-   * @returns A promise that resolves to the created SetupIntent with clientSecret
+   * @returns A promise that resolves to the created SetupIntent with clientSecret, or an error
    */
   addPaymentMethod(params) {
     return __async(this, null, function* () {
@@ -324,7 +337,7 @@ var MantleClient = class {
    * @param params.id - The usage metric id
    * @param params.period - The interval to get the report for
    * @param params.customerId - The customer ID to get the report for
-   * @returns A promise that resolves to the usage metric report
+   * @returns A promise that resolves to the usage metric report or an error
    */
   getUsageMetricReport(params) {
     return __async(this, null, function* () {
@@ -339,7 +352,7 @@ var MantleClient = class {
    * @param params.page - The page number to get, defaults to 0
    * @param params.limit - The number of invoices to get per page, defaults to 10
    * @param params.status - The status of the invoices to get
-   * @returns A promise that resolves to the list of invoices
+   * @returns A promise that resolves to the list of invoices or an error
    */
   listInvoices() {
     return __async(this, arguments, function* (params = {}) {
@@ -357,7 +370,7 @@ var MantleClient = class {
    * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
    * @param params.type - The type of hosted session to create
    * @param params.config - The configuration for the hosted session
-   * @returns A promise that resolves to the hosted session with a url property
+   * @returns A promise that resolves to the hosted session with a url property or an error
    */
   createHostedSession(params) {
     return __async(this, null, function* () {
@@ -366,14 +379,20 @@ var MantleClient = class {
         method: "POST",
         body: params
       });
-      return __spreadValues(__spreadValues({}, (response == null ? void 0 : response.session) || {}), (response == null ? void 0 : response.error) || { error: response.error });
+      if ("error" in response && response.error) {
+        return { error: response.error };
+      }
+      if ("session" in response && response.session) {
+        return response.session;
+      }
+      return { id: "", url: "" };
     });
   }
   /**
    * Send notifications for a specific notification template id
    * @param params.templateId - The ID of the notification template to send
    * @param params.test - Whether to send the notification as a test. If true, the notification will only be sent to the current customer and will have isTest set to true.
-   * @returns A promise that resolves to the list of notified customers
+   * @returns A promise that resolves to the list of notified customers or an error
    */
   notify(params) {
     return __async(this, null, function* () {
@@ -382,12 +401,15 @@ var MantleClient = class {
         method: "POST",
         body: params
       });
+      if ("error" in response) {
+        return response;
+      }
       return response.notifies;
     });
   }
   /**
    * Get list of notifications for the current customer
-   * @returns A promise that resolves to the list of notifications
+   * @returns A promise that resolves to the list of notifications or an error
    */
   listNotifications(params) {
     return __async(this, null, function* () {
@@ -400,7 +422,7 @@ var MantleClient = class {
   }
   /**
    * Get list of notification templates
-   * @returns A promise that resolves to the list of notification templates
+   * @returns A promise that resolves to the list of notification templates or an error
    */
   listNotificationTemplates() {
     return __async(this, null, function* () {
@@ -412,7 +434,7 @@ var MantleClient = class {
   /**
    * Trigger a notification CTA for a specific notification id
    * @param params.id - The ID of the notification to trigger the CTA for
-   * @returns A promise that resolves to the triggered notification
+   * @returns A promise that resolves to the triggered notification or an error
    */
   triggerNotificationCta(params) {
     return __async(this, null, function* () {
@@ -427,7 +449,7 @@ var MantleClient = class {
    * @param params.id - The ID of the notification to update
    * @param params.readAt - The date the notification was read
    * @param params.dismissedAt - The date the notification was dismissed
-   * @returns A promise that resolves if the update was successful
+   * @returns A promise that resolves if the update was successful or an error
    */
   updateNotification(params) {
     return __async(this, null, function* () {
@@ -443,7 +465,7 @@ var MantleClient = class {
   }
   /**
    * Get the checklist for the current customer
-   * @returns A promise that resolves to the customer's checklist, or null if no checklist is found
+   * @returns A promise that resolves to the customer's checklist, or null if no checklist is found, or an error
    */
   getChecklist() {
     return __async(this, null, function* () {
@@ -457,7 +479,7 @@ var MantleClient = class {
    * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
    * @param params.checklistId - The ID of the checklist to complete the step for
    * @param params.checklistStepId - The ID of the checklist step to complete
-   * @returns A promise that resolves if the step was completed successfully
+   * @returns A promise that resolves if the step was completed successfully or an error
    */
   completeChecklistStep(params) {
     return __async(this, null, function* () {
