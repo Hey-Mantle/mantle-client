@@ -358,7 +358,7 @@ var MantleClient = class {
         body: params
       });
       if ("error" in response && response.error) {
-        return { error: response.error };
+        return response;
       }
       if ("session" in response && response.session) {
         return response.session;
@@ -374,10 +374,13 @@ var MantleClient = class {
    */
   notify(params) {
     return __async(this, null, function* () {
+      var _a;
       const response = yield this.mantleRequest({
         path: `notification_templates/${params.templateId}/notify`,
         method: "POST",
-        body: params
+        body: __spreadValues({
+          test: (_a = params.test) != null ? _a : false
+        }, params)
       });
       if ("error" in response) {
         return response;

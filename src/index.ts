@@ -9,7 +9,10 @@
  * Error response from Mantle API
  */
 interface MantleError {
+  /** The error message */
   error: string;
+  /** Additional error details */
+  details?: string;
 }
 
 /**
@@ -745,6 +748,10 @@ type IdentifyResponse = {
   apiToken: string;
 };
 
+type SuccessResponse = {
+  success: boolean;
+};
+
 interface ListNotificationTemplatesResponse {
   notificationTemplates: NotificationTemplate[];
   hasMore: boolean;
@@ -817,6 +824,13 @@ type OtherPlatformIdentifyParams = {
   /** The domain of the customer's store */
   myshopifyDomain?: string;
 } & BaseIdentifyParams;
+
+type UsageMetricReport = {
+  startDate: string;
+  endDate: string;
+  period: "daily" | "weekly" | "monthly";
+  data: { date: string, value: number }[];
+}
 
 class MantleClient {
   private appId: string;
@@ -1098,8 +1112,8 @@ class MantleClient {
     timestamp?: Date;
     customerId?: string;
     properties?: Record<string, any>;
-  }): Promise<boolean | MantleError> {
-    return await this.mantleRequest<boolean>({
+  }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
       path: "usage_events",
       method: "POST",
       body: params,
@@ -1111,8 +1125,8 @@ class MantleClient {
    * @param params.events - The events to send
    * @returns A promise that resolves to true if the events were sent successfully, or an error
    */
-  async sendUsageEvents(params: { events: UsageEvent[] }): Promise<boolean | MantleError> {
-    return await this.mantleRequest<boolean>({
+  async sendUsageEvents(params: { events: UsageEvent[] }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
       path: "usage_events",
       method: "POST",
       body: params,
@@ -1145,8 +1159,8 @@ class MantleClient {
     id: string;
     period?: string;
     customerId?: string;
-  }): Promise<any | MantleError> {
-    return await this.mantleRequest({
+  }): Promise<{ report: UsageMetricReport } | MantleError> {
+    return await this.mantleRequest<{ report: UsageMetricReport }>({
       path: `usage_events/${params.id}/report`,
       body: {
         ...(params.period ? { period: params.period } : {}),
@@ -1185,14 +1199,14 @@ class MantleClient {
     type: string;
     config: Record<string, any>;
   }): Promise<HostedSession | MantleError> {
-    const response = await this.mantleRequest<{ session?: HostedSession; error?: any }>({
+    const response = await this.mantleRequest<{ session?: HostedSession }>({
       path: "hosted_sessions",
       method: "POST",
       body: params,
     });
 
     if ('error' in response && response.error) {
-      return { error: response.error };
+      return response;
     }
 
     if ('session' in response && response.session) {
@@ -1215,7 +1229,10 @@ class MantleClient {
     const response = await this.mantleRequest<{ notifies: string[] }>({
       path: `notification_templates/${params.templateId}/notify`,
       method: "POST",
-      body: params,
+      body: {
+        test: params.test ?? false,
+        ...params,
+      },
     });
 
     if ('error' in response) {
@@ -1256,8 +1273,8 @@ class MantleClient {
    */
   async triggerNotificationCta(params: {
     id: string;
-  }): Promise<{ success: boolean } | MantleError> {
-    return await this.mantleRequest<{ success: boolean }>({
+  }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
       path: `notifications/${params.id}/trigger`,
       method: "POST",
     });
@@ -1274,8 +1291,8 @@ class MantleClient {
     id: string;
     readAt?: Date;
     dismissedAt?: Date;
-  }): Promise<{ success: boolean } | MantleError> {
-    return await this.mantleRequest<{ success: boolean }>({
+  }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
       path: `notifications/${params.id}`,
       method: "PUT",
       body: {
@@ -1305,8 +1322,8 @@ class MantleClient {
   async completeChecklistStep(params: {
     checklistId: string;
     checklistStepId: string;
-  }): Promise<{ success: boolean } | MantleError> {
-    return await this.mantleRequest<{ success: boolean }>({
+  }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
       path: `checklists/${params.checklistId}/steps/${params.checklistStepId}/complete`,
       method: "POST",
     });

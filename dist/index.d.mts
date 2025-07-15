@@ -6,7 +6,10 @@
  * Error response from Mantle API
  */
 interface MantleError {
+    /** The error message */
     error: string;
+    /** Additional error details */
+    details?: string;
 }
 /**
  * A checklist item for onboarding or feature adoption
@@ -685,6 +688,9 @@ type NotificationTemplate = {
 type IdentifyResponse = {
     apiToken: string;
 };
+type SuccessResponse = {
+    success: boolean;
+};
 interface ListNotificationTemplatesResponse {
     notificationTemplates: NotificationTemplate[];
     hasMore: boolean;
@@ -756,6 +762,15 @@ type OtherPlatformIdentifyParams = {
     /** The domain of the customer's store */
     myshopifyDomain?: string;
 } & BaseIdentifyParams;
+type UsageMetricReport = {
+    startDate: string;
+    endDate: string;
+    period: "daily" | "weekly" | "monthly";
+    data: {
+        date: string;
+        value: number;
+    }[];
+};
 declare class MantleClient {
     private appId;
     private apiKey?;
@@ -889,7 +904,7 @@ declare class MantleClient {
         timestamp?: Date;
         customerId?: string;
         properties?: Record<string, any>;
-    }): Promise<boolean | MantleError>;
+    }): Promise<SuccessResponse | MantleError>;
     /**
      * Send multiple usage events of the same type in bulk
      * @param params.events - The events to send
@@ -897,7 +912,7 @@ declare class MantleClient {
      */
     sendUsageEvents(params: {
         events: UsageEvent[];
-    }): Promise<boolean | MantleError>;
+    }): Promise<SuccessResponse | MantleError>;
     /**
      * Initial step to start the process of connecting a new payment method from an external billing provider
      * @param params.returnUrl - The URL to redirect to after a checkout has completed
@@ -917,7 +932,9 @@ declare class MantleClient {
         id: string;
         period?: string;
         customerId?: string;
-    }): Promise<any | MantleError>;
+    }): Promise<{
+        report: UsageMetricReport;
+    } | MantleError>;
     /**
      * Get a list of invoices for the current customer
      * @param params.page - The page number to get, defaults to 0
@@ -965,9 +982,7 @@ declare class MantleClient {
      */
     triggerNotificationCta(params: {
         id: string;
-    }): Promise<{
-        success: boolean;
-    } | MantleError>;
+    }): Promise<SuccessResponse | MantleError>;
     /**
      * Update a notification to set the readAt and dismissedAt dates
      * @param params.id - The ID of the notification to update
@@ -979,9 +994,7 @@ declare class MantleClient {
         id: string;
         readAt?: Date;
         dismissedAt?: Date;
-    }): Promise<{
-        success: boolean;
-    } | MantleError>;
+    }): Promise<SuccessResponse | MantleError>;
     /**
      * Get the checklist for the current customer
      * @returns A promise that resolves to the customer's checklist, or null if no checklist is found, or an error
@@ -996,9 +1009,7 @@ declare class MantleClient {
     completeChecklistStep(params: {
         checklistId: string;
         checklistStepId: string;
-    }): Promise<{
-        success: boolean;
-    } | MantleError>;
+    }): Promise<SuccessResponse | MantleError>;
 }
 
 export { type Address, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric };
