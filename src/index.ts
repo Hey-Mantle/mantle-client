@@ -103,11 +103,11 @@ interface Customer {
   /** The myshopify domain of the customer, if on the Shopify platform */
   myshopifyDomain?: string;
   /** The date the customer was first seen or installed */
-  installedAt?: Date;
+  installedAt?: string;
   /** If the customer has or had a trial, the date that it started */
-  trialStartsAt?: Date;
+  trialStartsAt?: string;
   /** If the customer has or had a trial, the date that it ended */
-  trialExpiresAt?: Date;
+  trialExpiresAt?: string;
   /** The plans available to the customer */
   plans: Plan[];
   /** The subscription of the current customer, if any */
@@ -142,11 +142,11 @@ interface Plan {
   description?: string;
   /** The availability of the plan, one of "public", "customerTag", "customer", "shopifyPlan" or "hidden" */
   availability:
-  | "public"
-  | "customerTag"
-  | "customer"
-  | "shopifyPlan"
-  | "hidden";
+    | "public"
+    | "customerTag"
+    | "customer"
+    | "shopifyPlan"
+    | "hidden";
   /** The type of the plan, one of "base" or "add_on" */
   type: "base" | "add_on";
   /** The currency code of the plan */
@@ -214,25 +214,25 @@ interface Subscription {
   /** Whether the subscription is active */
   active: boolean;
   /** The date the subscription was activated */
-  activatedAt?: Date;
+  activatedAt?: string;
   /** The date that the first billing cycle starts or started */
-  billingCycleAnchor?: Date;
+  billingCycleAnchor?: string;
   /** The date that the current billing cycle starts */
-  currentPeriodStart?: Date;
+  currentPeriodStart?: string;
   /** The date that the current billing cycle ends */
-  currentPeriodEnd?: Date;
+  currentPeriodEnd?: string;
   /** The date that the trial starts */
-  trialStartsAt?: Date;
+  trialStartsAt?: string;
   /** The date that the trial ends */
-  trialExpiresAt?: Date;
+  trialExpiresAt?: string;
   /** The date the subscription will be cancelled */
-  cancelOn?: Date;
+  cancelOn?: string;
   /** The date the subscription was cancelled */
-  cancelledAt?: Date;
+  cancelledAt?: string;
   /** The date the subscription was frozen */
-  frozenAt?: Date;
+  frozenAt?: string;
   /** The date the subscription was created */
-  createdAt?: Date;
+  createdAt?: string;
   /** The features of the subscription */
   features: Record<string, Feature>;
   /** The order of the features by key */
@@ -448,11 +448,11 @@ interface UsageCredit {
   /** The currency code of the usage credit */
   currencyCode: string;
   /** The date the usage credit expires */
-  expiresAt?: Date;
+  expiresAt?: string;
   /** The date the usage credit was created */
-  createdAt?: Date;
+  createdAt?: string;
   /** The date the usage credit was last updated */
-  updatedAt?: Date;
+  updatedAt?: string;
 }
 
 /**
@@ -468,7 +468,7 @@ interface Review {
   /** The content of the review */
   content?: string;
   /** The date the review was added to the platform */
-  date?: Date;
+  date?: string;
 }
 
 /**
@@ -734,15 +734,15 @@ export type Notify = {
   title: string;
   body: string;
   cta:
-  | {
-    type: "url";
-    url: string;
-    openInNewTab: boolean;
-  }
-  | {
-    type: "flow";
-    flowId: string;
-  };
+    | {
+        type: "url";
+        url: string;
+        openInNewTab: boolean;
+      }
+    | {
+        type: "flow";
+        flowId: string;
+      };
   preview: string;
   createdAt: string;
   updatedAt: string;
@@ -799,7 +799,7 @@ interface BaseIdentifyParams {
   /** Key-value pairs of features to override on the customer */
   features?: Record<string, string>;
   /** The date the customer was created, defaults to now if not provided */
-  createdAt?: Date;
+  createdAt?: string;
   /** True to rotate the customer API token and return the new value */
   rotateApiToken?: boolean;
   /** The tags to apply to the customer. Default operator is "replace" */
@@ -847,8 +847,8 @@ type UsageMetricReport = {
   startDate: string;
   endDate: string;
   period: "daily" | "weekly" | "monthly";
-  data: { date: string, value: number }[];
-}
+  data: { date: string; value: number }[];
+};
 
 class MantleClient {
   private appId: string;
@@ -891,8 +891,9 @@ class MantleClient {
     body,
   }: MantleRequestParams): Promise<T | MantleError> {
     try {
-      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
-        }`;
+      const url = `${this.apiUrl}${path.startsWith("/") ? "" : "/"}${path}${
+        body && method === "GET" ? `?${new URLSearchParams(body)}` : ""
+      }`;
       const response = await fetch(url, {
         method,
         headers: {
@@ -906,14 +907,17 @@ class MantleClient {
         },
         ...(body &&
           method !== "GET" && {
-          body: JSON.stringify(body),
-        }),
+            body: JSON.stringify(body),
+          }),
       });
 
       const result = await response.json();
 
       // Check if the response indicates an error
-      if (!response.ok || (result && typeof result === 'object' && 'error' in result)) {
+      if (
+        !response.ok ||
+        (result && typeof result === "object" && "error" in result)
+      ) {
         return result as MantleError;
       }
 
@@ -988,7 +992,7 @@ class MantleClient {
       ...(id ? { body: { id } } : {}),
     });
 
-    if ('error' in response) {
+    if ("error" in response) {
       return response;
     }
 
@@ -1008,7 +1012,7 @@ class MantleClient {
     count?: number;
   }): Promise<boolean | MantleError> {
     const customer = await this.getCustomer(params.customerId);
-    if ('error' in customer) {
+    if ("error" in customer) {
       return customer;
     }
     if (customer?.features[params.featureKey]) {
@@ -1031,7 +1035,7 @@ class MantleClient {
     featureKey: string;
   }): Promise<number | MantleError> {
     const customer = await this.getCustomer(params.customerId);
-    if ('error' in customer) {
+    if ("error" in customer) {
       return customer;
     }
     if (
@@ -1066,13 +1070,13 @@ class MantleClient {
   async subscribe(
     params:
       | ({
-        planId: string;
-        planIds?: never;
-      } & Omit<SubscribeParams, "planId" | "planIds">)
+          planId: string;
+          planIds?: never;
+        } & Omit<SubscribeParams, "planId" | "planIds">)
       | ({
-        planId?: never;
-        planIds: string[];
-      } & Omit<SubscribeParams, "planId" | "planIds">)
+          planId?: never;
+          planIds: string[];
+        } & Omit<SubscribeParams, "planId" | "planIds">)
   ): Promise<Subscription | MantleError> {
     return await this.mantleRequest<Subscription>({
       path: "subscriptions",
@@ -1143,7 +1147,9 @@ class MantleClient {
    * @param params.events - The events to send
    * @returns A promise that resolves to true if the events were sent successfully, or an error
    */
-  async sendUsageEvents(params: { events: UsageEvent[] }): Promise<SuccessResponse | MantleError> {
+  async sendUsageEvents(params: {
+    events: UsageEvent[];
+  }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
       path: "usage_events",
       method: "POST",
@@ -1156,7 +1162,9 @@ class MantleClient {
    * @param params.returnUrl - The URL to redirect to after a checkout has completed
    * @returns A promise that resolves to the created SetupIntent with clientSecret, or an error
    */
-  async addPaymentMethod(params: { returnUrl?: string }): Promise<SetupIntent | MantleError> {
+  async addPaymentMethod(params: {
+    returnUrl?: string;
+  }): Promise<SetupIntent | MantleError> {
     return await this.mantleRequest<SetupIntent>({
       path: "payment_methods",
       method: "POST",
@@ -1223,15 +1231,15 @@ class MantleClient {
       body: params,
     });
 
-    if ('error' in response && response.error) {
+    if ("error" in response && response.error) {
       return response;
     }
 
-    if ('session' in response && response.session) {
+    if ("session" in response && response.session) {
       return response.session;
     }
 
-    return { id: '', url: '' };
+    return { id: "", url: "" };
   }
 
   /**
@@ -1253,7 +1261,7 @@ class MantleClient {
       },
     });
 
-    if ('error' in response) {
+    if ("error" in response) {
       return response;
     }
 
@@ -1278,7 +1286,9 @@ class MantleClient {
    * Get list of notification templates
    * @returns A promise that resolves to the list of notification templates or an error
    */
-  async listNotificationTemplates(): Promise<ListNotificationTemplatesResponse | MantleError> {
+  async listNotificationTemplates(): Promise<
+    ListNotificationTemplatesResponse | MantleError
+  > {
     return await this.mantleRequest<ListNotificationTemplatesResponse>({
       path: "notification_templates",
     });
@@ -1373,9 +1383,9 @@ export {
   type SetupIntent,
   type Subscription,
   type SuccessResponse,
-  type UsageMetricReport,
   type UsageCharge,
   type UsageCredit,
   type UsageEvent,
   type UsageMetric,
+  type UsageMetricReport,
 };
