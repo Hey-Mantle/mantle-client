@@ -183,6 +183,8 @@ interface Plan {
   customFields?: Record<string, any>;
   /** The discounts on the plan */
   discounts: Discount[];
+  /** The bundle discounts on the plan */
+  bundleDiscounts: BundleDiscount[];
   /** The auto apply discount on the plan, if any */
   autoAppliedDiscount?: Discount;
   /** Whether the plan is part of a flex billing flow */
@@ -411,6 +413,22 @@ interface Discount {
   discountedAmount: number;
   /** The presentment discounted amount of plan after discount */
   presentmentDiscountedAmount: number;
+}
+
+/**
+ * Details about a bundle discount for a plan or subscription
+ */
+interface BundleDiscount {
+  /** The ID of the bundle discount */
+  id: string;
+  /** The amount of the bundle discount */
+  amount?: number;
+  /** The percentage of the bundle discount */
+  percentage?: number;
+  /** The duration limit in intervals of the bundle discount */
+  durationLimitInIntervals?: number;
+  /** The discounted amount for the plan with the discount applied */
+  discountedAmount: number;
 }
 
 /**
