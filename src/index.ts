@@ -429,6 +429,16 @@ interface BundleDiscount {
   durationLimitInIntervals?: number;
   /** The discounted amount for the plan with the discount applied */
   discountedAmount: number;
+  /** The type of the bundle discount */
+  type: "bundle";
+  /** Whether the bundle discount will apply if the customer is subscribed */
+  willApplyIfSubscribed: boolean;
+  /** The presentment amount of the bundle discount */
+  presentmentAmount: number;
+  /** The presentment currency code of the bundle discount */
+  presentmentCurrencyCode: string;
+  /** The presentment discounted amount of the bundle discount */
+  presentmentDiscountedAmount: number;
 }
 
 /**
