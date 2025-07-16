@@ -87,11 +87,11 @@ interface Customer {
     /** The myshopify domain of the customer, if on the Shopify platform */
     myshopifyDomain?: string;
     /** The date the customer was first seen or installed */
-    installedAt?: Date;
+    installedAt?: string;
     /** If the customer has or had a trial, the date that it started */
-    trialStartsAt?: Date;
+    trialStartsAt?: string;
     /** If the customer has or had a trial, the date that it ended */
-    trialExpiresAt?: Date;
+    trialExpiresAt?: string;
     /** The plans available to the customer */
     plans: Plan[];
     /** The subscription of the current customer, if any */
@@ -191,25 +191,25 @@ interface Subscription {
     /** Whether the subscription is active */
     active: boolean;
     /** The date the subscription was activated */
-    activatedAt?: Date;
+    activatedAt?: string;
     /** The date that the first billing cycle starts or started */
-    billingCycleAnchor?: Date;
+    billingCycleAnchor?: string;
     /** The date that the current billing cycle starts */
-    currentPeriodStart?: Date;
+    currentPeriodStart?: string;
     /** The date that the current billing cycle ends */
-    currentPeriodEnd?: Date;
+    currentPeriodEnd?: string;
     /** The date that the trial starts */
-    trialStartsAt?: Date;
+    trialStartsAt?: string;
     /** The date that the trial ends */
-    trialExpiresAt?: Date;
+    trialExpiresAt?: string;
     /** The date the subscription will be cancelled */
-    cancelOn?: Date;
+    cancelOn?: string;
     /** The date the subscription was cancelled */
-    cancelledAt?: Date;
+    cancelledAt?: string;
     /** The date the subscription was frozen */
-    frozenAt?: Date;
+    frozenAt?: string;
     /** The date the subscription was created */
-    createdAt?: Date;
+    createdAt?: string;
     /** The features of the subscription */
     features: Record<string, Feature>;
     /** The order of the features by key */
@@ -416,11 +416,11 @@ interface UsageCredit {
     /** The currency code of the usage credit */
     currencyCode: string;
     /** The date the usage credit expires */
-    expiresAt?: Date;
+    expiresAt?: string;
     /** The date the usage credit was created */
-    createdAt?: Date;
+    createdAt?: string;
     /** The date the usage credit was last updated */
-    updatedAt?: Date;
+    updatedAt?: string;
 }
 /**
  * A review left by the customer on a platform's app store
@@ -435,7 +435,7 @@ interface Review {
     /** The content of the review */
     content?: string;
     /** The date the review was added to the platform */
-    date?: Date;
+    date?: string;
 }
 /**
  * The invoice of a subscription
