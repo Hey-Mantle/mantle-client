@@ -799,7 +799,7 @@ interface BaseIdentifyParams {
   /** Key-value pairs of features to override on the customer */
   features?: Record<string, string>;
   /** The date the customer was created, defaults to now if not provided */
-  createdAt?: string;
+  createdAt?: Date;
   /** True to rotate the customer API token and return the new value */
   rotateApiToken?: boolean;
   /** The tags to apply to the customer. Default operator is "replace" */
