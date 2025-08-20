@@ -1366,6 +1366,21 @@ class MantleClient {
       method: "POST",
     });
   }
+
+  /**
+   * Marks the checklist as shown. Doing this when you first show the checklist to the customer will help you more accurately track the customer's progress.
+   * @param params.checklistId - The ID of the checklist to show
+   * @returns A promise that resolves if the checklist was shown successfully or an error
+   */
+  async showChecklist(params: {
+    checklistId: string;
+    checklistStepId: string;
+  }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
+      path: `checklists/${params.checklistId}/shown`,
+      method: "POST",
+    });
+  }
 }
 
 export {
