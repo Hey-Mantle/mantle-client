@@ -1023,10 +1023,16 @@ declare class MantleClient {
         dismissedAt?: Date;
     }): Promise<SuccessResponse | MantleError>;
     /**
-     * Get the checklist for the current customer
+     * Get the activechecklist for the current customer
      * @returns A promise that resolves to the customer's checklist, or null if no checklist is found, or an error
      */
     getChecklist(): Promise<Checklist | null | MantleError>;
+    /**
+     * Get a list of published checklists for the current customer including checklists after the active checklist
+     * @param handle - An optional filter to only return checklists with the given handle(s)
+     * @returns A promise that resolves to the customer's checklists, or an error
+     */
+    getChecklists(handle?: string | string[]): Promise<Checklist[] | MantleError>;
     /**
      * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
      * @param params.checklistId - The ID of the checklist to complete the step for
@@ -1034,6 +1040,15 @@ declare class MantleClient {
      * @returns A promise that resolves if the step was completed successfully or an error
      */
     completeChecklistStep(params: {
+        checklistId: string;
+        checklistStepId: string;
+    }): Promise<SuccessResponse | MantleError>;
+    /**
+     * Marks the checklist as shown. Doing this when you first show the checklist to the customer will help you more accurately track the customer's progress.
+     * @param params.checklistId - The ID of the checklist to show
+     * @returns A promise that resolves if the checklist was shown successfully or an error
+     */
+    showChecklist(params: {
         checklistId: string;
         checklistStepId: string;
     }): Promise<SuccessResponse | MantleError>;
