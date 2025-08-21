@@ -1050,7 +1050,6 @@ declare class MantleClient {
      */
     showChecklist(params: {
         checklistId: string;
-        checklistStepId: string;
     }): Promise<SuccessResponse | MantleError>;
 }
 

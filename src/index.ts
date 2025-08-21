@@ -1389,7 +1389,6 @@ class MantleClient {
    */
   async showChecklist(params: {
     checklistId: string;
-    checklistStepId: string;
   }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
       path: `checklists/${params.checklistId}/shown`,
