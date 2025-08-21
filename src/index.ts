@@ -80,7 +80,7 @@ interface MantleRequestParams {
   path: string;
   /** The HTTP method to use. Defaults to GET */
   method?: "GET" | "POST" | "PUT" | "DELETE";
-  /** The request body */
+  /** The request body (or query parameters for GET requests) */
   body?: Record<string, any>;
 }
 
@@ -1341,12 +1341,25 @@ class MantleClient {
   }
 
   /**
-   * Get the checklist for the current customer
+   * Get the activechecklist for the current customer
    * @returns A promise that resolves to the customer's checklist, or null if no checklist is found, or an error
    */
   async getChecklist(): Promise<Checklist | null | MantleError> {
     return await this.mantleRequest<Checklist | null>({
+      path: "checklist",
+      method: "GET",
+    });
+  }
+
+  /**
+   * Get a list of published checklists for the current customer including checklists after the active checklist
+   * @param handle - An optional filter to only return checklists with the given handle(s). Use a CSV string of handles for multiple checklists.
+   * @returns A promise that resolves to the customer's checklists, or an error
+   */
+  async getChecklists(handle?: string): Promise<Checklist[] | MantleError> {
+    return await this.mantleRequest<Checklist[]>({
       path: "checklists",
+      body: handle ? { handle } : undefined,
       method: "GET",
     });
   }
@@ -1363,6 +1376,20 @@ class MantleClient {
   }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
       path: `checklists/${params.checklistId}/steps/${params.checklistStepId}/complete`,
+      method: "POST",
+    });
+  }
+
+  /**
+   * Marks the checklist as shown. Doing this when you first show the checklist to the customer will help you more accurately track the customer's progress.
+   * @param params.checklistId - The ID of the checklist to show
+   * @returns A promise that resolves if the checklist was shown successfully or an error
+   */
+  async showChecklist(params: {
+    checklistId: string;
+  }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
+      path: `checklists/${params.checklistId}/shown`,
       method: "POST",
     });
   }
