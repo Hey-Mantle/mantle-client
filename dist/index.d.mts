@@ -1029,10 +1029,10 @@ declare class MantleClient {
     getChecklist(): Promise<Checklist | null | MantleError>;
     /**
      * Get a list of published checklists for the current customer including checklists after the active checklist
-     * @param handle - An optional filter to only return checklists with the given handle(s)
+     * @param handle - An optional filter to only return checklists with the given handle(s). Use a CSV string of handles for multiple checklists.
      * @returns A promise that resolves to the customer's checklists, or an error
      */
-    getChecklists(handle?: string | string[]): Promise<Checklist[] | MantleError>;
+    getChecklists(handle?: string): Promise<Checklist[] | MantleError>;
     /**
      * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
      * @param params.checklistId - The ID of the checklist to complete the step for

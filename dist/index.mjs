@@ -458,7 +458,7 @@ var MantleClient = class {
   }
   /**
    * Get a list of published checklists for the current customer including checklists after the active checklist
-   * @param handle - An optional filter to only return checklists with the given handle(s)
+   * @param handle - An optional filter to only return checklists with the given handle(s). Use a CSV string of handles for multiple checklists.
    * @returns A promise that resolves to the customer's checklists, or an error
    */
   getChecklists(handle) {

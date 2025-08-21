@@ -1353,12 +1353,10 @@ class MantleClient {
 
   /**
    * Get a list of published checklists for the current customer including checklists after the active checklist
-   * @param handle - An optional filter to only return checklists with the given handle(s)
+   * @param handle - An optional filter to only return checklists with the given handle(s). Use a CSV string of handles for multiple checklists.
    * @returns A promise that resolves to the customer's checklists, or an error
    */
-  async getChecklists(
-    handle?: string | string[]
-  ): Promise<Checklist[] | MantleError> {
+  async getChecklists(handle?: string): Promise<Checklist[] | MantleError> {
     return await this.mantleRequest<Checklist[]>({
       path: "checklists",
       body: handle ? { handle } : undefined,
