@@ -19,6 +19,13 @@
     "@heymantle:registry": "https://registry.npmjs.org/",
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hey-Mantle/mantle-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hey-Mantle/mantle-client/issues"
+  },
   "devDependencies": {
     "typescript": "^5.4.3",
     "tsup": "^8.0.2"
