@@ -37,6 +37,8 @@ interface ChecklistStep {
     completedAt?: string | null;
     /** Whether the checklist item can be manually completed by the customer */
     allowManualCompletion: boolean;
+    /** Whether the checklist item can be skipped by the customer */
+    allowSkip: boolean;
     /** Whether the checklist item has been skipped */
     skipped: boolean;
     /** The date the checklist item was skipped */
