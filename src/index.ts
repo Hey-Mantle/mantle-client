@@ -31,12 +31,20 @@ interface ChecklistStep {
   descriptionJson?: any;
   /** Whether the checklist item is completed */
   completed: boolean;
+  /** The URL of the call to action for the checklist item */
+  ctaUrl?: string;
+  /** The label of the call to action for the checklist item */
+  ctaLabel?: string;
   /** The image URL associated with the checklist item */
   imageUrl?: string | null;
   /** The date the checklist item was completed */
   completedAt?: string | null;
   /** Whether the checklist item can be manually completed by the customer */
   allowManualCompletion: boolean;
+  /** Whether the checklist item has been skipped */
+  skipped: boolean;
+  /** The date the checklist item was skipped */
+  skippedAt?: string | null;
 }
 
 /**
