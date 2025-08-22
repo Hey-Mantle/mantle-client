@@ -55,6 +55,16 @@ interface Checklist {
   id: string;
   /** The name of the checklist */
   name: string;
+  /** The title of the checklist */
+  title?: string;
+  /** The description of the checklist */
+  description?: string;
+  /** The HTML description of the checklist */
+  descriptionHtml?: string;
+  /** The JSON description of the checklist */
+  descriptionJson?: any;
+  /** The handle of the checklist */
+  handle?: string;
   /** The checklist steps */
   steps: ChecklistStep[];
   /** The number of completed steps */
