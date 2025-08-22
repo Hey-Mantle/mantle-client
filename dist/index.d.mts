@@ -27,12 +27,22 @@ interface ChecklistStep {
     descriptionJson?: any;
     /** Whether the checklist item is completed */
     completed: boolean;
+    /** The URL of the call to action for the checklist item */
+    ctaUrl?: string;
+    /** The label of the call to action for the checklist item */
+    ctaLabel?: string;
     /** The image URL associated with the checklist item */
     imageUrl?: string | null;
     /** The date the checklist item was completed */
     completedAt?: string | null;
     /** Whether the checklist item can be manually completed by the customer */
     allowManualCompletion: boolean;
+    /** Whether the checklist item can be skipped by the customer */
+    allowSkip: boolean;
+    /** Whether the checklist item has been skipped */
+    skipped: boolean;
+    /** The date the checklist item was skipped */
+    skippedAt?: string | null;
 }
 /**
  * A checklist for customer onboarding or feature adoption
@@ -42,6 +52,16 @@ interface Checklist {
     id: string;
     /** The name of the checklist */
     name: string;
+    /** The title of the checklist */
+    title?: string;
+    /** The description of the checklist */
+    description?: string;
+    /** The HTML description of the checklist */
+    descriptionHtml?: string;
+    /** The JSON description of the checklist */
+    descriptionJson?: any;
+    /** The handle of the checklist */
+    handle?: string;
     /** The checklist steps */
     steps: ChecklistStep[];
     /** The number of completed steps */
@@ -1040,6 +1060,16 @@ declare class MantleClient {
      * @returns A promise that resolves if the step was completed successfully or an error
      */
     completeChecklistStep(params: {
+        checklistId: string;
+        checklistStepId: string;
+    }): Promise<SuccessResponse | MantleError>;
+    /**
+     * Skip a checklist step
+     * @param params.checklistId - The ID of the checklist to skip the step for
+     * @param params.checklistStepId - The ID of the checklist step to skip
+     * @returns A promise that resolves if the step was skipped successfully or an error
+     */
+    skipChecklistStep(params: {
         checklistId: string;
         checklistStepId: string;
     }): Promise<SuccessResponse | MantleError>;

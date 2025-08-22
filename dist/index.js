@@ -507,6 +507,20 @@ var MantleClient = class {
     });
   }
   /**
+   * Skip a checklist step
+   * @param params.checklistId - The ID of the checklist to skip the step for
+   * @param params.checklistStepId - The ID of the checklist step to skip
+   * @returns A promise that resolves if the step was skipped successfully or an error
+   */
+  skipChecklistStep(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: `checklists/${params.checklistId}/steps/${params.checklistStepId}/skip`,
+        method: "POST"
+      });
+    });
+  }
+  /**
    * Marks the checklist as shown. Doing this when you first show the checklist to the customer will help you more accurately track the customer's progress.
    * @param params.checklistId - The ID of the checklist to show
    * @returns A promise that resolves if the checklist was shown successfully or an error
