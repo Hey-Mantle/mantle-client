@@ -242,6 +242,7 @@ var MantleClient = class {
    * @param params.paymentMethodTypes - The payment method types to use for the subscription
    * @param params.automaticTax - Whether to automatically calculate tax for the subscription
    * @param params.requireBillingAddress - Tell the Stripe Checkout Session to require a billing address
+   * @param params.prorationBehavior - The Stripe `proration_behavior` to use for a subscription upgrade/downgrade
    * @param params.email - Prefill the Stripe customer's email address
    * @param params.metadata - The metadata to attach to the subscription
    * @returns A promise that resolves to the created subscription or an error

@@ -653,6 +653,13 @@ declare enum SubscriptionConfirmType {
  */
 type RequirePaymentMethodOptions = "always" | "if_required" | "on_upgrade" | "never";
 /**
+ * The Stripe `proration_behavior` to use for a subscription upgrade/downgrade
+ * - `always_invoice`: immediately invoice the customer for the new plan if appropriate
+ * - `create_prorations`: create prorations for the customer on the next billing cycle.
+ * - `none`: do not create prorations.
+ */
+type ProrationBehaviorOptions = "always_invoice" | "create_prorations" | "none";
+/**
  * Parameters for the subscribe method, excluding the plan ID fields which are handled separately
  */
 interface SubscribeParams {
@@ -684,6 +691,8 @@ interface SubscribeParams {
     automaticTax?: boolean;
     /** Tell the Stripe Checkout Session to require a billing address */
     requireBillingAddress?: boolean;
+    /** The Stripe `proration_behavior` to use for a subscription upgrade/downgrade */
+    prorationBehavior?: ProrationBehaviorOptions;
     /** Prefill the Stripe customer's email address */
     email?: string;
     /** The metadata to attach to the subscription */
@@ -907,6 +916,7 @@ declare class MantleClient {
      * @param params.paymentMethodTypes - The payment method types to use for the subscription
      * @param params.automaticTax - Whether to automatically calculate tax for the subscription
      * @param params.requireBillingAddress - Tell the Stripe Checkout Session to require a billing address
+     * @param params.prorationBehavior - The Stripe `proration_behavior` to use for a subscription upgrade/downgrade
      * @param params.email - Prefill the Stripe customer's email address
      * @param params.metadata - The metadata to attach to the subscription
      * @returns A promise that resolves to the created subscription or an error
@@ -1083,4 +1093,4 @@ declare class MantleClient {
     }): Promise<SuccessResponse | MantleError>;
 }
 
-export { type Address, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport };
+export { type Address, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type PaymentMethod, type Plan, type PlatformInvoice, type ProrationBehaviorOptions, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport };
