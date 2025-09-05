@@ -321,16 +321,16 @@ var MantleClient = class {
   /**
    * Initial step to start the process of connecting a new payment method from an external billing provider
    * @param params.returnUrl - The URL to redirect to after a checkout has completed
+   * @param params.updateExistingPaymentMethods - Whether to update the payment method on existing subscriptions, defaults to true
    * @returns A promise that resolves to the created SetupIntent with clientSecret, or an error
    */
   addPaymentMethod(params) {
     return __async(this, null, function* () {
-      return yield this.mantleRequest(__spreadValues({
+      return yield this.mantleRequest({
         path: "payment_methods",
-        method: "POST"
-      }, params.returnUrl && {
-        body: { returnUrl: params.returnUrl }
-      }));
+        method: "POST",
+        body: params
+      });
     });
   }
   /**
