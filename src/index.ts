@@ -1372,71 +1372,74 @@ class MantleClient {
   }
 
   /**
-   * Get the activechecklist for the current customer
-   * @returns A promise that resolves to the customer's checklist, or null if no checklist is found, or an error
+   * Get a specific checklist by ID or handle
+   * @param idOrHandle - The ID or handle of the checklist to fetch
+   * @returns A promise that resolves to the checklist, or null if no checklist is found, or an error
    */
-  async getChecklist(): Promise<Checklist | null | MantleError> {
+  async getChecklist(
+    idOrHandle: string
+  ): Promise<Checklist | null | MantleError> {
     return await this.mantleRequest<Checklist | null>({
-      path: "checklist",
+      path: `checklists/${idOrHandle}`,
       method: "GET",
     });
   }
 
   /**
    * Get a list of published checklists for the current customer including checklists after the active checklist
-   * @param handle - An optional filter to only return checklists with the given handle(s). Use a CSV string of handles for multiple checklists.
+   * @param handles - An optional array of handles to filter checklists. Will be formatted as a CSV string in the request body.
    * @returns A promise that resolves to the customer's checklists, or an error
    */
-  async getChecklists(handle?: string): Promise<Checklist[] | MantleError> {
+  async getChecklists(handles?: string[]): Promise<Checklist[] | MantleError> {
     return await this.mantleRequest<Checklist[]>({
       path: "checklists",
-      body: handle ? { handle } : undefined,
+      body: handles ? { handles: handles.join(",") } : undefined,
       method: "GET",
     });
   }
 
   /**
    * Manually complete a checklist step rather than the step's completion trigger: usage event, usage metric, app event, etc.
-   * @param params.checklistId - The ID of the checklist to complete the step for
-   * @param params.checklistStepId - The ID of the checklist step to complete
+   * @param params.idOrHandle - The ID or handle of the checklist to complete the step for
+   * @param params.stepIdOrHandle - The ID or handle of the checklist step to complete
    * @returns A promise that resolves if the step was completed successfully or an error
    */
   async completeChecklistStep(params: {
-    checklistId: string;
-    checklistStepId: string;
+    idOrHandle: string;
+    stepIdOrHandle: string;
   }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
-      path: `checklists/${params.checklistId}/steps/${params.checklistStepId}/complete`,
+      path: `checklists/${params.idOrHandle}/steps/${params.stepIdOrHandle}/complete`,
       method: "POST",
     });
   }
 
   /**
    * Skip a checklist step
-   * @param params.checklistId - The ID of the checklist to skip the step for
-   * @param params.checklistStepId - The ID of the checklist step to skip
+   * @param params.idOrHandle - The ID or handle of the checklist to skip the step for
+   * @param params.stepIdOrHandle - The ID or handle of the checklist step to skip
    * @returns A promise that resolves if the step was skipped successfully or an error
    */
   async skipChecklistStep(params: {
-    checklistId: string;
-    checklistStepId: string;
+    idOrHandle: string;
+    stepIdOrHandle: string;
   }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
-      path: `checklists/${params.checklistId}/steps/${params.checklistStepId}/skip`,
+      path: `checklists/${params.idOrHandle}/steps/${params.stepIdOrHandle}/skip`,
       method: "POST",
     });
   }
 
   /**
    * Marks the checklist as shown. Doing this when you first show the checklist to the customer will help you more accurately track the customer's progress.
-   * @param params.checklistId - The ID of the checklist to show
+   * @param params.idOrHandle - The ID or handle of the checklist to show
    * @returns A promise that resolves if the checklist was shown successfully or an error
    */
   async showChecklist(params: {
-    checklistId: string;
+    idOrHandle: string;
   }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
-      path: `checklists/${params.checklistId}/shown`,
+      path: `checklists/${params.idOrHandle}/shown`,
       method: "POST",
     });
   }
