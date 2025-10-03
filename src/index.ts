@@ -1501,6 +1501,7 @@ export {
   type Review,
   type SetupIntent,
   type Subscription,
+  type OneTimeCharge,
   type SuccessResponse,
   type UsageCharge,
   type UsageCredit,
