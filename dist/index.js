@@ -287,6 +287,24 @@ var MantleClient = class {
     });
   }
   /**
+   * Create a one time charge for the authenticated customer
+   * @param params.amount - The amount of the one time charge
+   * @param params.name - The name of the one time charge
+   * @param params.currencyCode - The currency code of the one time charge, defaults to USD
+   * @param params.returnUrl - The URL to redirect to after the one time charge is confirmed, defaults to app root
+   * @param params.test - Whether the one time charge is a test, defaults to false
+   * @returns A promise that resolves to the created one time charge with a confirmation URL or an error
+   */
+  createOneTimeCharge(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: "one_time_charges",
+        method: "POST",
+        body: params
+      });
+    });
+  }
+  /**
    * Send a usage event
    * @param params.eventId - The ID of the event
    * @param params.eventName - The name of the event which can be tracked by usage metrics

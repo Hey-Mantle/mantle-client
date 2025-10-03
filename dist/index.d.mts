@@ -260,6 +260,13 @@ interface Subscription {
     confirmType?: SubscriptionConfirmType;
 }
 /**
+ * A one time charge that was created for a customer containing a confirmation URL that can be used to confirm the charge
+ */
+interface OneTimeCharge {
+    /** The URL to confirm the one time charge */
+    confirmationUrl?: URL;
+}
+/**
  * The line items of a subscription
  */
 interface SubscriptionLineItem {
@@ -946,6 +953,22 @@ declare class MantleClient {
         id: string;
         cappedAmount: number;
     }): Promise<Subscription | MantleError>;
+    /**
+     * Create a one time charge for the authenticated customer
+     * @param params.amount - The amount of the one time charge
+     * @param params.name - The name of the one time charge
+     * @param params.currencyCode - The currency code of the one time charge, defaults to USD
+     * @param params.returnUrl - The URL to redirect to after the one time charge is confirmed, defaults to app root
+     * @param params.test - Whether the one time charge is a test, defaults to false
+     * @returns A promise that resolves to the created one time charge with a confirmation URL or an error
+     */
+    createOneTimeCharge(params: {
+        amount: number;
+        name: string;
+        currencyCode?: string;
+        returnUrl?: string;
+        test?: boolean;
+    }): Promise<OneTimeCharge | MantleError>;
     /**
      * Send a usage event
      * @param params.eventId - The ID of the event
