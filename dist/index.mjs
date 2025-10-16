@@ -531,6 +531,27 @@ var MantleClient = class {
       });
     });
   }
+  /**
+   * Create an app event for the current customer
+   * @param params.type - The type of app event to create
+   * @param params.occurredAt - The date and time the event occurred
+   * @param params.metadata - Any additional metadata for the event
+   * @param params.platformEventId - Platform event ID for easier identification
+   * @param params.externalId - The ID from an external source related to this event
+   * @param params.plan - The plan for the event in case of plan or subscription events
+   * @param params.subscription - The subscription for the event in case of plan or subscription events
+   * @param params.charge - The charge for the event in case of usage charge events
+   * @returns A promise that resolves if the event was created successfully or an error
+   */
+  sendAppEvent(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: "app_events",
+        method: "POST",
+        body: params
+      });
+    });
+  }
 };
 export {
   MantleClient,
