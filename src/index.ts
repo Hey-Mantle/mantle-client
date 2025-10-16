@@ -828,6 +828,42 @@ interface ListNotificationTemplatesResponse {
  */
 type Platform = "shopify" | "web" | "mantle";
 
+type AppEventType =
+  | "installed"
+  | "uninstalled"
+  | "reinstalled"
+  | "deactivated"
+  | "reactivated"
+  | "subscription_approaching_capped_amount"
+  | "subscription_capped_amount_updated"
+  | "usage_charge_exceeds_limit"
+  | "reviewed"
+  | "first_identify"
+  | "subscribed"
+  | "unsubscribed"
+  | "upgraded"
+  | "downgraded"
+  | "usage_upgrade"
+  | "usage_downgrade"
+  | "resubscribed"
+  | "subscription_frozen"
+  | "subscription_unfrozen"
+  | "trial_expired"
+  | "trial_extended"
+  | "trial_converted"
+  | "charge_abandoned"
+  | "payment_method_added"
+  | "payment_method_removed"
+  | "refunded"
+  | "credit_applied"
+  | "payment_failed"
+  | "payment_action_required"
+  | "subscription_paused"
+  | "subscription_resumed"
+  | "discount_applied"
+  | "discount_removed"
+  | "one_time_charge_activated";
+
 /**
  * Base parameters for the identify method
  */
@@ -1472,6 +1508,55 @@ class MantleClient {
     return await this.mantleRequest<SuccessResponse>({
       path: `checklists/${params.idOrHandle}/shown`,
       method: "POST",
+    });
+  }
+
+  /**
+   * Create an app event for the current customer
+   * @param params.type - The type of app event to create
+   * @param params.occurredAt - The date and time the event occurred
+   * @param params.metadata - Any additional metadata for the event
+   * @param params.platformEventId - Platform event ID for easier identification
+   * @param params.externalId - The ID from an external source related to this event
+   * @param params.plan - The plan for the event in case of plan or subscription events
+   * @param params.subscription - The subscription for the event in case of plan or subscription events
+   * @param params.charge - The charge for the event in case of usage charge events
+   * @returns A promise that resolves if the event was created successfully or an error
+   */
+  async sendAppEvent(params: {
+    customerId?: string;
+    type: AppEventType;
+    occurredAt?: Date;
+    metadata?: Record<string, any>;
+    platformEventId?: string;
+    externalId?: string;
+    plan?: {
+      id?: string;
+      previousId?: string;
+      previousExternalId?: string;
+      name?: string;
+      netChange?: number;
+      amount?: number;
+      currencyCode?: string;
+      interval?: "EVERY_30_DAYS" | "ANNUAL";
+    };
+    subscription?: {
+      id?: string;
+      previousId?: string;
+    };
+    charge?: {
+      id?: string;
+      name?: string;
+      amount?: number;
+      type?: "one_time" | "usage";
+      status?: "billed" | "paid" | "activated" | "due";
+      currencyCode?: string;
+    };
+  }): Promise<SuccessResponse | MantleError> {
+    return await this.mantleRequest<SuccessResponse>({
+      path: "app_events",
+      method: "POST",
+      body: params,
     });
   }
 }
