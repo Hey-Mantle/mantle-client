@@ -1551,6 +1551,7 @@ class MantleClient {
       type?: "one_time" | "usage";
       status?: "billed" | "paid" | "activated" | "due";
       currencyCode?: string;
+      externalId?: string;
     };
   }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
@@ -1578,6 +1579,7 @@ export {
   type InvoiceLineItem,
   type ListInvoicesResponse,
   type MantleError,
+  type OneTimeCharge,
   type PaymentMethod,
   type Plan,
   type PlatformInvoice,
@@ -1586,7 +1588,6 @@ export {
   type Review,
   type SetupIntent,
   type Subscription,
-  type OneTimeCharge,
   type SuccessResponse,
   type UsageCharge,
   type UsageCredit,

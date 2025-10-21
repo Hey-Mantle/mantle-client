@@ -1131,6 +1131,7 @@ declare class MantleClient {
      * @returns A promise that resolves if the event was created successfully or an error
      */
     sendAppEvent(params: {
+        customerId?: string;
         type: AppEventType;
         occurredAt?: Date;
         metadata?: Record<string, any>;
@@ -1157,6 +1158,7 @@ declare class MantleClient {
             type?: "one_time" | "usage";
             status?: "billed" | "paid" | "activated" | "due";
             currencyCode?: string;
+            externalId?: string;
         };
     }): Promise<SuccessResponse | MantleError>;
 }
