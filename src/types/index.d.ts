@@ -235,7 +235,7 @@ export type SubscriptionLineItem = {
   /**
    * - The presentment currency code of the line item
    */
-  presentmentCurrencyCode: number;
+  presentmentCurrencyCode: string;
   /**
    * - The plan of the line item
    */
@@ -421,7 +421,7 @@ export type Plan = {
   /**
    * - The presentment currency code of the plan
    */
-  presentmentCurrencyCode: number;
+  presentmentCurrencyCode: string;
   /**
    * - The total amount of the plan, after discounts if applicable
    */
@@ -779,7 +779,7 @@ export type Discount = {
   /**
    * - The presentment currency code of the discount
    */
-  presentmentCurrencyCode?: number;
+  presentmentCurrencyCode?: string;
   /**
    * - The percentage of the discount
    */
