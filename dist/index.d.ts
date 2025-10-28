@@ -152,7 +152,7 @@ interface Plan {
     /** The presentment amount of the plan */
     presentmentAmount: number;
     /** The presentment currency code of the plan */
-    presentmentCurrencyCode: number;
+    presentmentCurrencyCode: string;
     /** The total amount of the plan, after discounts if applicable */
     total: number;
     /** The subtotal amount of the plan, before discounts if applicable */
@@ -281,7 +281,7 @@ interface SubscriptionLineItem {
     /** The presentment amount of the line item */
     presentmentAmount: number;
     /** The presentment currency code of the line item */
-    presentmentCurrencyCode: number;
+    presentmentCurrencyCode: string;
     /** The plan of the line item */
     plan: Plan;
 }
@@ -401,7 +401,7 @@ interface Discount {
     /** The presentment amount of the discount */
     presentmentAmount?: number;
     /** The presentment currency code of the discount */
-    presentmentCurrencyCode?: number;
+    presentmentCurrencyCode?: string;
     /** The percentage of the discount */
     percentage?: number;
     /** The duration limit of the discount in plan intervals */
