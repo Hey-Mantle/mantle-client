@@ -835,6 +835,58 @@ type UsageMetricReport = {
         value: number;
     }[];
 };
+/**
+ * The app information for an app installation
+ */
+interface AppInstallationApp {
+    /** The ID of the app */
+    id: string;
+    /** The name of the app */
+    name: string;
+}
+/**
+ * The subscription information for an app installation
+ */
+interface AppInstallationSubscription {
+    /** The ID of the subscription */
+    id: string;
+    /** The ID of the plan */
+    planId: string | null;
+    /** The name of the plan */
+    planName: string | null;
+}
+/**
+ * An app installation for a customer
+ */
+interface AppInstallation {
+    /** The ID of the app installation */
+    id: string;
+    /** The name of the app installation */
+    name: string;
+    /** The myshopify domain of the app installation, if on Shopify */
+    myshopifyDomain: string | null;
+    /** The platform the app installation is on */
+    platform: string | null;
+    /** The ID of the app installation on the platform */
+    platformId: string;
+    /** The date the app installation was installed */
+    installedAt: string | null;
+    /** The date the app installation was uninstalled */
+    uninstalledAt: string | null;
+    /** The installation status of the app installation */
+    installStatus: "installed" | "uninstalled";
+    /** The app information for the app installation */
+    app: AppInstallationApp | null;
+    /** The subscription information for the app installation */
+    subscription: AppInstallationSubscription | null;
+}
+/**
+ * Response from listing app installations
+ */
+interface GetAppInstallationsResponse {
+    /** The list of app installations */
+    appInstallations: AppInstallation[];
+}
 declare class MantleClient {
     private appId;
     private apiKey?;
@@ -886,6 +938,14 @@ declare class MantleClient {
      * @returns A promise that resolves to the current customer or an error
      */
     getCustomer(id?: string): Promise<Customer | MantleError>;
+    /**
+     * Get the list of app installations for the customer
+     * @param params.customerId - The customer ID / Shopify domain, api token. Only required if using the API key for authentication instead of the customer API token
+     * @returns A promise that resolves to the list of app installations or an error
+     */
+    getAppInstallations(params?: {
+        customerId?: string;
+    }): Promise<GetAppInstallationsResponse | MantleError>;
     /**
      * Check if a feature is enabled for a customer
      * @param params.customerId - The ID of the customer to evaluate the feature for. Only required if using the API key for authentication instead of the customer API token
@@ -1163,4 +1223,4 @@ declare class MantleClient {
     }): Promise<SuccessResponse | MantleError>;
 }
 
-export { type Address, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type OneTimeCharge, type PaymentMethod, type Plan, type PlatformInvoice, type ProrationBehaviorOptions, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport };
+export { type Address, type AppInstallation, type AppInstallationApp, type AppInstallationSubscription, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type GetAppInstallationsResponse, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type OneTimeCharge, type PaymentMethod, type Plan, type PlatformInvoice, type ProrationBehaviorOptions, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport };

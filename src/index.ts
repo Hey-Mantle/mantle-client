@@ -934,6 +934,62 @@ type UsageMetricReport = {
   data: { date: string; value: number }[];
 };
 
+/**
+ * The app information for an app installation
+ */
+interface AppInstallationApp {
+  /** The ID of the app */
+  id: string;
+  /** The name of the app */
+  name: string;
+}
+
+/**
+ * The subscription information for an app installation
+ */
+interface AppInstallationSubscription {
+  /** The ID of the subscription */
+  id: string;
+  /** The ID of the plan */
+  planId: string | null;
+  /** The name of the plan */
+  planName: string | null;
+}
+
+/**
+ * An app installation for a customer
+ */
+interface AppInstallation {
+  /** The ID of the app installation */
+  id: string;
+  /** The name of the app installation */
+  name: string;
+  /** The myshopify domain of the app installation, if on Shopify */
+  myshopifyDomain: string | null;
+  /** The platform the app installation is on */
+  platform: string | null;
+  /** The ID of the app installation on the platform */
+  platformId: string;
+  /** The date the app installation was installed */
+  installedAt: string | null;
+  /** The date the app installation was uninstalled */
+  uninstalledAt: string | null;
+  /** The installation status of the app installation */
+  installStatus: "installed" | "uninstalled";
+  /** The app information for the app installation */
+  app: AppInstallationApp | null;
+  /** The subscription information for the app installation */
+  subscription: AppInstallationSubscription | null;
+}
+
+/**
+ * Response from listing app installations
+ */
+interface GetAppInstallationsResponse {
+  /** The list of app installations */
+  appInstallations: AppInstallation[];
+}
+
 class MantleClient {
   private appId: string;
   private apiKey?: string;
@@ -1081,6 +1137,22 @@ class MantleClient {
     }
 
     return response.customer;
+  }
+
+  /**
+   * Get the list of app installations for the customer
+   * @param params.customerId - The customer ID / Shopify domain, api token. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the list of app installations or an error
+   */
+  async getAppInstallations(params?: {
+    customerId?: string;
+  }): Promise<GetAppInstallationsResponse | MantleError> {
+    return await this.mantleRequest<GetAppInstallationsResponse>({
+      path: "app_installations",
+      ...(params?.customerId
+        ? { body: { customerId: params.customerId } }
+        : {}),
+    });
   }
 
   /**
@@ -1566,6 +1638,9 @@ export {
   MantleClient,
   SubscriptionConfirmType,
   type Address,
+  type AppInstallation,
+  type AppInstallationApp,
+  type AppInstallationSubscription,
   type AppliedDiscount,
   type Checklist,
   type ChecklistStep,
@@ -1573,6 +1648,7 @@ export {
   type Customer,
   type Discount,
   type Feature,
+  type GetAppInstallationsResponse,
   type HostedSession,
   type IdentifyResponse,
   type Invoice,

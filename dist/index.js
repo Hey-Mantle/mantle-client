@@ -187,6 +187,18 @@ var MantleClient = class {
     });
   }
   /**
+   * Get the list of app installations for the customer
+   * @param params.customerId - The customer ID / Shopify domain, api token. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the list of app installations or an error
+   */
+  getAppInstallations(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest(__spreadValues({
+        path: "app_installations"
+      }, (params == null ? void 0 : params.customerId) ? { body: { customerId: params.customerId } } : {}));
+    });
+  }
+  /**
    * Check if a feature is enabled for a customer
    * @param params.customerId - The ID of the customer to evaluate the feature for. Only required if using the API key for authentication instead of the customer API token
    * @param params.featureKey - The key of the feature to evaluate
