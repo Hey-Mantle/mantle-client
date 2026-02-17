@@ -1494,6 +1494,83 @@ describe('MantleClient', () => {
     });
   });
 
+  describe('Engagement CTA tracking', () => {
+    describe('trackEngagementCtaClick', () => {
+      it('should track a notification CTA click', async () => {
+        const client = new MantleClient({
+          appId: 'test-app-id',
+          customerApiToken: 'customer-token',
+        });
+
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true }),
+        });
+
+        const result = await client.trackEngagementCtaClick({
+          id: 'notif-123',
+          engagementType: 'notification',
+        });
+
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/engagements/notif-123/cta_click'),
+          expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ engagementType: 'notification' }),
+          })
+        );
+        expect(result).toEqual({ success: true });
+      });
+
+      it('should track a checklist CTA click', async () => {
+        const client = new MantleClient({
+          appId: 'test-app-id',
+          customerApiToken: 'customer-token',
+        });
+
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true }),
+        });
+
+        const result = await client.trackEngagementCtaClick({
+          id: 'checklist-456',
+          engagementType: 'checklist',
+        });
+
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/engagements/checklist-456/cta_click'),
+          expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ engagementType: 'checklist' }),
+          })
+        );
+        expect(result).toEqual({ success: true });
+      });
+
+      it('should return error on failure', async () => {
+        const client = new MantleClient({
+          appId: 'test-app-id',
+          customerApiToken: 'customer-token',
+        });
+
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({ error: 'Invalid engagementType. Must be one of: notification, checklist' }),
+        });
+
+        const result = await client.trackEngagementCtaClick({
+          id: 'notif-123',
+          engagementType: 'notification',
+        });
+
+        expect(result).toEqual({
+          error: 'Invalid engagementType. Must be one of: notification, checklist',
+        });
+      });
+    });
+  });
+
   describe('Checklists', () => {
     describe('getChecklist', () => {
       it('should get checklist by ID', async () => {

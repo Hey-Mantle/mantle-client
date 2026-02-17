@@ -1127,6 +1127,16 @@ declare class MantleClient {
         id: string;
     }): Promise<SuccessResponse | MantleError>;
     /**
+     * Track a CTA click on an engagement (notification, checklist, etc.) as a usage event
+     * @param params.id - The ID of the engagement that was clicked
+     * @param params.engagementType - The type of engagement (e.g. "notification", "checklist")
+     * @returns A promise that resolves to a success response or an error
+     */
+    trackEngagementCtaClick(params: {
+        id: string;
+        engagementType: "notification" | "checklist";
+    }): Promise<SuccessResponse | MantleError>;
+    /**
      * Update a notification to set the readAt and dismissedAt dates
      * @param params.id - The ID of the notification to update
      * @param params.readAt - The date the notification was read

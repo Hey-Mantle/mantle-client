@@ -457,6 +457,23 @@ var MantleClient = class {
     });
   }
   /**
+   * Track a CTA click on an engagement (notification, checklist, etc.) as a usage event
+   * @param params.id - The ID of the engagement that was clicked
+   * @param params.engagementType - The type of engagement (e.g. "notification", "checklist")
+   * @returns A promise that resolves to a success response or an error
+   */
+  trackEngagementCtaClick(params) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: `engagements/${params.id}/cta_click`,
+        method: "POST",
+        body: {
+          engagementType: params.engagementType
+        }
+      });
+    });
+  }
+  /**
    * Update a notification to set the readAt and dismissedAt dates
    * @param params.id - The ID of the notification to update
    * @param params.readAt - The date the notification was read
