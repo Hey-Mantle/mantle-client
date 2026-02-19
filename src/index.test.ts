@@ -1494,9 +1494,9 @@ describe('MantleClient', () => {
     });
   });
 
-  describe('Engagement CTA tracking', () => {
-    describe('trackEngagementCtaClick', () => {
-      it('should POST to the engagement cta_click endpoint', async () => {
+  describe('Notification CTA tracking', () => {
+    describe('trackNotificationCtaClick', () => {
+      it('should POST to the notification cta_click endpoint', async () => {
         const client = new MantleClient({
           appId: 'test-app-id',
           customerApiToken: 'customer-token',
@@ -1507,12 +1507,12 @@ describe('MantleClient', () => {
           json: async () => ({ success: true }),
         });
 
-        const result = await client.trackEngagementCtaClick({
+        const result = await client.trackNotificationCtaClick({
           id: 'notif-123',
         });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('/engagements/notif-123/cta_click'),
+          expect.stringContaining('/notifications/notif-123/cta_click'),
           expect.objectContaining({
             method: 'POST',
           })
@@ -1531,7 +1531,7 @@ describe('MantleClient', () => {
           json: async () => ({ error: 'Notification not found' }),
         });
 
-        const result = await client.trackEngagementCtaClick({
+        const result = await client.trackNotificationCtaClick({
           id: 'nonexistent-id',
         });
 

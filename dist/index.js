@@ -479,14 +479,14 @@ var MantleClient = class {
     });
   }
   /**
-   * Track a CTA click on an engagement as a usage event
+   * Track a CTA click on a notification as a usage event
    * @param params.id - The ID of the notification (Notify record) that was clicked
    * @returns A promise that resolves to a success response or an error
    */
-  trackEngagementCtaClick(params) {
+  trackNotificationCtaClick(params) {
     return __async(this, null, function* () {
       return yield this.mantleRequest({
-        path: `engagements/${params.id}/cta_click`,
+        path: `notifications/${params.id}/cta_click`,
         method: "POST"
       });
     });
