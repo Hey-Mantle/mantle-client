@@ -1,6 +1,6 @@
 {
   "name": "@heymantle/client",
-  "version": "1.1.70",
+  "version": "1.1.71",
   "description": "Mantle API Client for TypeScript and JavaScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -36,6 +36,5 @@
     "typescript": "^5.4.3",
     "tsup": "^8.0.2",
     "vitest": "^1.2.0"
-  },
-  "packageManager": "pnpm@10.30.0+sha512.2b5753de015d480eeb88f5b5b61e0051f05b4301808a82ec8b840c9d2adf7748eb352c83f5c1593ca703ff1017295bc3fdd3119abb9686efc96b9fcb18200937"
+  }
 }
