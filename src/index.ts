@@ -1011,7 +1011,7 @@ class MantleClient {
     }
     if (typeof window !== "undefined" && apiKey) {
       throw new Error(
-        "MantleClient apiKey should never be used in the browser"
+        "MantleClient apiKey should never be used in the browser",
       );
     }
 
@@ -1112,7 +1112,7 @@ class MantleClient {
    * @returns A promise that resolves to an object with the customer API token or an error
    */
   async identify(
-    params: ShopifyIdentifyParams | OtherPlatformIdentifyParams
+    params: ShopifyIdentifyParams | OtherPlatformIdentifyParams,
   ): Promise<IdentifyResponse | MantleError> {
     return await this.mantleRequest<IdentifyResponse>({
       path: "identify",
@@ -1233,7 +1233,7 @@ class MantleClient {
       | ({
           planId?: never;
           planIds: string[];
-        } & Omit<SubscribeParams, "planId" | "planIds">)
+        } & Omit<SubscribeParams, "planId" | "planIds">),
   ): Promise<Subscription | MantleError> {
     return await this.mantleRequest<Subscription>({
       path: "subscriptions",
@@ -1383,7 +1383,7 @@ class MantleClient {
    * @returns A promise that resolves to the list of invoices or an error
    */
   async listInvoices(
-    params: ListInvoicesParams = {}
+    params: ListInvoicesParams = {},
   ): Promise<ListInvoicesResponse | MantleError> {
     return await this.mantleRequest<ListInvoicesResponse>({
       path: "invoices",
@@ -1489,16 +1489,21 @@ class MantleClient {
   }
 
   /**
-   * Track a CTA click on a notification as a usage event
-   * @param params.id - The ID of the notification (Notify record) that was clicked
+   * Track a notification CTA as a usage event
+   * @param params.id - The ID of the notification (Notify record)
+   * @param params.type - The type of CTA interaction. Defaults to "trigger"
    * @returns A promise that resolves to a success response or an error
    */
-  async trackNotificationCtaClick(params: {
+  async trackNotificationCta(params: {
     id: string;
+    type?: "trigger" | "click";
   }): Promise<SuccessResponse | MantleError> {
     return await this.mantleRequest<SuccessResponse>({
-      path: `notifications/${params.id}/cta_click`,
+      path: `notifications/${params.id}/track`,
       method: "POST",
+      body: {
+        type: params.type ?? "trigger",
+      },
     });
   }
 
@@ -1530,7 +1535,7 @@ class MantleClient {
    * @returns A promise that resolves to the checklist, or null if no checklist is found, or an error
    */
   async getChecklist(
-    idOrHandle: string
+    idOrHandle: string,
   ): Promise<Checklist | null | MantleError> {
     return await this.mantleRequest<Checklist | null>({
       path: `checklists/${idOrHandle}`,

@@ -1495,8 +1495,8 @@ describe('MantleClient', () => {
   });
 
   describe('Notification CTA tracking', () => {
-    describe('trackNotificationCtaClick', () => {
-      it('should POST to the notification cta_click endpoint', async () => {
+    describe('trackNotificationCta', () => {
+      it('should POST to the notification track endpoint with default type trigger', async () => {
         const client = new MantleClient({
           appId: 'test-app-id',
           customerApiToken: 'customer-token',
@@ -1507,17 +1507,43 @@ describe('MantleClient', () => {
           json: async () => ({ success: true }),
         });
 
-        const result = await client.trackNotificationCtaClick({
+        const result = await client.trackNotificationCta({
           id: 'notif-123',
         });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('/notifications/notif-123/cta_click'),
+          expect.stringContaining('/notifications/notif-123/track'),
           expect.objectContaining({
             method: 'POST',
+            body: JSON.stringify({ type: 'trigger' }),
           })
         );
         expect(result).toEqual({ success: true });
+      });
+
+      it('should pass type click when specified', async () => {
+        const client = new MantleClient({
+          appId: 'test-app-id',
+          customerApiToken: 'customer-token',
+        });
+
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true }),
+        });
+
+        await client.trackNotificationCta({
+          id: 'notif-123',
+          type: 'click',
+        });
+
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/notifications/notif-123/track'),
+          expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ type: 'click' }),
+          })
+        );
       });
 
       it('should return error when notification not found', async () => {
@@ -1531,7 +1557,7 @@ describe('MantleClient', () => {
           json: async () => ({ error: 'Notification not found' }),
         });
 
-        const result = await client.trackNotificationCtaClick({
+        const result = await client.trackNotificationCta({
           id: 'nonexistent-id',
         });
 
