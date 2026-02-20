@@ -1494,6 +1494,80 @@ describe('MantleClient', () => {
     });
   });
 
+  describe('Notification CTA tracking', () => {
+    describe('trackNotificationCta', () => {
+      it('should POST to the notification track endpoint with default type trigger', async () => {
+        const client = new MantleClient({
+          appId: 'test-app-id',
+          customerApiToken: 'customer-token',
+        });
+
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true }),
+        });
+
+        const result = await client.trackNotificationCta({
+          id: 'notif-123',
+        });
+
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/notifications/notif-123/track'),
+          expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ type: 'trigger' }),
+          })
+        );
+        expect(result).toEqual({ success: true });
+      });
+
+      it('should pass type click when specified', async () => {
+        const client = new MantleClient({
+          appId: 'test-app-id',
+          customerApiToken: 'customer-token',
+        });
+
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true }),
+        });
+
+        await client.trackNotificationCta({
+          id: 'notif-123',
+          type: 'click',
+        });
+
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/notifications/notif-123/track'),
+          expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ type: 'click' }),
+          })
+        );
+      });
+
+      it('should return error when notification not found', async () => {
+        const client = new MantleClient({
+          appId: 'test-app-id',
+          customerApiToken: 'customer-token',
+        });
+
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({ error: 'Notification not found' }),
+        });
+
+        const result = await client.trackNotificationCta({
+          id: 'nonexistent-id',
+        });
+
+        expect(result).toEqual({
+          error: 'Notification not found',
+        });
+      });
+    });
+  });
+
   describe('Checklists', () => {
     describe('getChecklist', () => {
       it('should get checklist by ID', async () => {

@@ -479,6 +479,24 @@ var MantleClient = class {
     });
   }
   /**
+   * Track a notification CTA as a usage event
+   * @param params.id - The ID of the notification (Notify record)
+   * @param params.type - The type of CTA interaction. Defaults to "trigger"
+   * @returns A promise that resolves to a success response or an error
+   */
+  trackNotificationCta(params) {
+    return __async(this, null, function* () {
+      var _a;
+      return yield this.mantleRequest({
+        path: `notifications/${params.id}/track`,
+        method: "POST",
+        body: {
+          type: (_a = params.type) != null ? _a : "trigger"
+        }
+      });
+    });
+  }
+  /**
    * Update a notification to set the readAt and dismissedAt dates
    * @param params.id - The ID of the notification to update
    * @param params.readAt - The date the notification was read
