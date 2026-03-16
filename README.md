@@ -34,6 +34,23 @@ const { apiToken: customerApiToken } = await client.identify({
 });
 ```
 
+### Shopify Expiring Access Tokens
+
+As of December 2025, Shopify supports expiring offline access tokens. If your app uses expiring tokens, pass the refresh token to Mantle so it can automatically refresh tokens when needed:
+
+```js
+const { apiToken: customerApiToken } = await client.identify({
+  platform: 'shopify',
+  platformId: shop.id,
+  myshopifyDomain: shop.myshopifyDomain,
+  accessToken: tokenResponse.access_token,
+  refreshToken: tokenResponse.refresh_token,           // For expiring tokens
+  accessTokenExpiresAt: tokenResponse.expires_at,      // Optional: ISO 8601 timestamp
+  name: shop.name,
+  email: shop.email,
+});
+```
+
 Once identified, you can perform customer-specific operations:
 
 - Fetch the customer, subscription, and plan details

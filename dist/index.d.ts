@@ -720,7 +720,7 @@ interface ListInvoicesParams {
     /** The status of the invoices to get */
     status?: InvoiceStatus;
 }
-type Notify = {
+export type Notify = {
     id: string;
     title: string;
     body: string;
@@ -771,6 +771,10 @@ interface BaseIdentifyParams {
     platform: Platform;
     /** The access token for the platform API, for Shopify apps, this should be the Shop access token */
     accessToken?: string;
+    /** The refresh token for obtaining new access tokens when they expire (Shopify only, for expiring offline tokens) */
+    refreshToken?: string;
+    /** ISO 8601 timestamp when the access token expires (Shopify only, for expiring offline tokens) */
+    accessTokenExpiresAt?: string;
     /** The name of the customer */
     name?: string;
     /** The email of the customer */
@@ -915,6 +919,8 @@ declare class MantleClient {
      * @param params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
      * @param params.myshopifyDomain - The myshopify.com domain of the Shopify store
      * @param params.accessToken - The access token for the platform API, for Shopify apps, this should be the Shop access token
+     * @param params.refreshToken - The refresh token for obtaining new access tokens when they expire (Shopify only, for expiring offline tokens)
+     * @param params.accessTokenExpiresAt - ISO 8601 timestamp when the access token expires (Shopify only, for expiring offline tokens)
      * @param params.name - The name of the customer
      * @param params.email - The email of the customer
      * @param params.platformPlanName - The name of the plan on the platform (Shopify plan name)
@@ -1232,5 +1238,5 @@ declare class MantleClient {
         };
     }): Promise<SuccessResponse | MantleError>;
 }
-
-export { type Address, type AppInstallation, type AppInstallationApp, type AppInstallationSubscription, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type GetAppInstallationsResponse, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type OneTimeCharge, type PaymentMethod, type Plan, type PlatformInvoice, type ProrationBehaviorOptions, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport };
+export { MantleClient, SubscriptionConfirmType, type Address, type AppInstallation, type AppInstallationApp, type AppInstallationSubscription, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type GetAppInstallationsResponse, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListInvoicesResponse, type MantleError, type OneTimeCharge, type PaymentMethod, type Plan, type PlatformInvoice, type ProrationBehaviorOptions, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport, };
+//# sourceMappingURL=index.d.ts.map

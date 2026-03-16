@@ -872,6 +872,10 @@ interface BaseIdentifyParams {
   platform: Platform;
   /** The access token for the platform API, for Shopify apps, this should be the Shop access token */
   accessToken?: string;
+  /** The refresh token for obtaining new access tokens when they expire (Shopify only, for expiring offline tokens) */
+  refreshToken?: string;
+  /** ISO 8601 timestamp when the access token expires (Shopify only, for expiring offline tokens) */
+  accessTokenExpiresAt?: string;
   /** The name of the customer */
   name?: string;
   /** The email of the customer */
@@ -1095,6 +1099,8 @@ class MantleClient {
    * @param params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
    * @param params.myshopifyDomain - The myshopify.com domain of the Shopify store
    * @param params.accessToken - The access token for the platform API, for Shopify apps, this should be the Shop access token
+   * @param params.refreshToken - The refresh token for obtaining new access tokens when they expire (Shopify only, for expiring offline tokens)
+   * @param params.accessTokenExpiresAt - ISO 8601 timestamp when the access token expires (Shopify only, for expiring offline tokens)
    * @param params.name - The name of the customer
    * @param params.email - The email of the customer
    * @param params.platformPlanName - The name of the plan on the platform (Shopify plan name)
