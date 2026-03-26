@@ -145,6 +145,8 @@ var MantleClient = class {
    * @param params.platformId - The unique ID of the customer on the app platform, for Shopify this should be the Shop ID
    * @param params.myshopifyDomain - The myshopify.com domain of the Shopify store
    * @param params.accessToken - The access token for the platform API, for Shopify apps, this should be the Shop access token
+   * @param params.refreshToken - The refresh token for obtaining new access tokens when they expire (Shopify only, for expiring offline tokens)
+   * @param params.accessTokenExpiresAt - ISO 8601 timestamp when the access token expires (Shopify only, for expiring offline tokens)
    * @param params.name - The name of the customer
    * @param params.email - The email of the customer
    * @param params.platformPlanName - The name of the plan on the platform (Shopify plan name)
@@ -602,6 +604,137 @@ var MantleClient = class {
         method: "POST",
         body: params
       });
+    });
+  }
+  /**
+   * Get the affiliate program for the current app
+   * @param params.customerId - The ID of the customer. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the affiliate program or an error
+   */
+  getAffiliateProgram(params) {
+    return __async(this, null, function* () {
+      const response = yield this.mantleRequest(__spreadValues({
+        path: "affiliate_program"
+      }, (params == null ? void 0 : params.customerId) ? { body: { customerId: params.customerId } } : {}));
+      if ("error" in response) {
+        return response;
+      }
+      return response.affiliate_program;
+    });
+  }
+  /**
+   * Get the current customer's affiliate status and enrollment
+   * @param params.customerId - The ID of the customer. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the affiliate or null if not enrolled, or an error
+   */
+  getAffiliate(params) {
+    return __async(this, null, function* () {
+      const response = yield this.mantleRequest(__spreadValues({
+        path: "affiliate"
+      }, (params == null ? void 0 : params.customerId) ? { body: { customerId: params.customerId } } : {}));
+      if ("error" in response) {
+        return response;
+      }
+      return response.affiliate;
+    });
+  }
+  /**
+   * Enroll the current customer as an affiliate in the program
+   * @param params.name - The name of the affiliate, defaults to the customer's name
+   * @param params.email - The email of the affiliate, defaults to the customer's email
+   * @param params.agreedToTerms - Whether the affiliate has agreed to the program terms, required if the program requires terms acceptance
+   * @param params.customerId - The ID of the customer. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the enrolled affiliate or an error
+   */
+  enrollAffiliate(params) {
+    return __async(this, null, function* () {
+      const response = yield this.mantleRequest({
+        path: "affiliate",
+        method: "POST",
+        body: params
+      });
+      if ("error" in response) {
+        return response;
+      }
+      return response.affiliate;
+    });
+  }
+  /**
+   * Submit a referral attribution request for approval
+   * @param params.shopDomain - The Shopify domain of the referred shop (e.g., "example-shop" or "example-shop.myshopify.com")
+   * @param params.customerName - The name of the referred customer, used if shopDomain is not provided
+   * @param params.notes - Notes about the referral
+   * @param params.date - The date of the referral (ISO date string), defaults to today
+   * @param params.customerId - The ID of the customer. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the created referral request or an error
+   */
+  submitReferralRequest(params) {
+    return __async(this, null, function* () {
+      const response = yield this.mantleRequest({
+        path: "affiliate/referrals",
+        method: "POST",
+        body: params
+      });
+      if ("error" in response) {
+        return response;
+      }
+      return response.referral_request;
+    });
+  }
+  /**
+   * Get the affiliate's confirmed referrals
+   * @param params.page - The page number, defaults to 0
+   * @param params.limit - The number of referrals per page, defaults to 25 (max 100)
+   * @param params.sort - Sort field, "createdAt" or "date", defaults to "createdAt"
+   * @param params.sortDirection - Sort direction, "asc" or "desc", defaults to "desc"
+   * @param params.customerId - The ID of the customer. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the list of referrals or an error
+   */
+  getAffiliateReferrals(params) {
+    return __async(this, null, function* () {
+      var _a, _b;
+      return yield this.mantleRequest({
+        path: "affiliate/referrals",
+        body: __spreadValues(__spreadValues(__spreadValues({
+          page: (_a = params == null ? void 0 : params.page) != null ? _a : 0,
+          limit: (_b = params == null ? void 0 : params.limit) != null ? _b : 25
+        }, (params == null ? void 0 : params.sort) ? { sort: params.sort } : {}), (params == null ? void 0 : params.sortDirection) ? { sortDirection: params.sortDirection } : {}), (params == null ? void 0 : params.customerId) ? { customerId: params.customerId } : {})
+      });
+    });
+  }
+  /**
+   * Get the affiliate's referral attribution requests
+   * @param params.page - The page number, defaults to 0
+   * @param params.limit - The number of requests per page, defaults to 25 (max 100)
+   * @param params.customerId - The ID of the customer. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the list of referral requests or an error
+   */
+  getAffiliateReferralRequests(params) {
+    return __async(this, null, function* () {
+      var _a, _b;
+      return yield this.mantleRequest({
+        path: "affiliate/referral_requests",
+        body: __spreadValues({
+          page: (_a = params == null ? void 0 : params.page) != null ? _a : 0,
+          limit: (_b = params == null ? void 0 : params.limit) != null ? _b : 25
+        }, (params == null ? void 0 : params.customerId) ? { customerId: params.customerId } : {})
+      });
+    });
+  }
+  /**
+   * Get the affiliate's performance metrics
+   * @param params.customerId - The ID of the customer. Only required if using the API key for authentication instead of the customer API token
+   * @returns A promise that resolves to the affiliate's metrics or an error
+   */
+  getAffiliateMetrics(params) {
+    return __async(this, null, function* () {
+      const response = yield this.mantleRequest(__spreadValues({
+        path: "affiliate/metrics"
+      }, (params == null ? void 0 : params.customerId) ? { body: { customerId: params.customerId } } : {}));
+      if ("error" in response) {
+        return response;
+      }
+      return response.metrics;
     });
   }
 };
