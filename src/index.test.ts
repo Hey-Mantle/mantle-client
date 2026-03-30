@@ -1249,6 +1249,32 @@ describe('MantleClient', () => {
     });
   });
 
+  describe('Invoice URL', () => {
+    it('should get the invoice URL', async () => {
+      const client = new MantleClient({
+        appId: 'test-app-id',
+        customerApiToken: 'customer-token',
+      });
+
+      const mockResponse = {
+        url: 'https://invoice.stripe.com/i/acct_123/test_456',
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      });
+
+      const result = await client.getInvoiceUrl('inv-1');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/invoices/inv-1/url'),
+        expect.any(Object)
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
   describe('Hosted sessions', () => {
     it('should create a hosted session', async () => {
       const client = new MantleClient({

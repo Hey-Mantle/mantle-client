@@ -598,6 +598,14 @@ interface ListInvoicesResponse {
 }
 
 /**
+ * Response from getting an invoice URL
+ */
+interface InvoiceUrlResponse {
+  /** The hosted invoice URL */
+  url: string;
+}
+
+/**
  * The model used to send usage events to Mantle
  */
 interface UsageEvent {
@@ -1556,6 +1564,19 @@ class MantleClient {
   }
 
   /**
+   * Get the hosted invoice URL for a specific invoice
+   * @param invoiceId - The ID of the invoice
+   * @returns A promise that resolves to the invoice URL or an error
+   */
+  async getInvoiceUrl(
+    invoiceId: string,
+  ): Promise<InvoiceUrlResponse | MantleError> {
+    return await this.mantleRequest<InvoiceUrlResponse>({
+      path: `invoices/${invoiceId}/url`,
+    });
+  }
+
+  /**
    * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
    * @param params.type - The type of hosted session to create
    * @param params.config - The configuration for the hosted session
@@ -2010,6 +2031,7 @@ export {
   type IdentifyResponse,
   type Invoice,
   type InvoiceLineItem,
+  type InvoiceUrlResponse,
   type ListAffiliateReferralRequestsResponse,
   type ListAffiliateReferralsResponse,
   type ListInvoicesResponse,

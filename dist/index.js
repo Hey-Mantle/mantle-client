@@ -400,6 +400,18 @@ var MantleClient = class {
     });
   }
   /**
+   * Get the hosted invoice URL for a specific invoice
+   * @param invoiceId - The ID of the invoice
+   * @returns A promise that resolves to the invoice URL or an error
+   */
+  getInvoiceUrl(invoiceId) {
+    return __async(this, null, function* () {
+      return yield this.mantleRequest({
+        path: `invoices/${invoiceId}/url`
+      });
+    });
+  }
+  /**
    * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
    * @param params.type - The type of hosted session to create
    * @param params.config - The configuration for the hosted session

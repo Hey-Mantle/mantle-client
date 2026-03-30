@@ -559,6 +559,13 @@ interface ListInvoicesResponse {
     hasMore: boolean;
 }
 /**
+ * Response from getting an invoice URL
+ */
+interface InvoiceUrlResponse {
+    /** The hosted invoice URL */
+    url: string;
+}
+/**
  * The model used to send usage events to Mantle
  */
 interface UsageEvent {
@@ -1238,6 +1245,12 @@ declare class MantleClient {
      */
     listInvoices(params?: ListInvoicesParams): Promise<ListInvoicesResponse | MantleError>;
     /**
+     * Get the hosted invoice URL for a specific invoice
+     * @param invoiceId - The ID of the invoice
+     * @returns A promise that resolves to the invoice URL or an error
+     */
+    getInvoiceUrl(invoiceId: string): Promise<InvoiceUrlResponse | MantleError>;
+    /**
      * Create a hosted session that can be used to send the customer to a hosted page to manage their subscription
      * @param params.type - The type of hosted session to create
      * @param params.config - The configuration for the hosted session
@@ -1466,4 +1479,4 @@ declare class MantleClient {
     }): Promise<AffiliateMetrics | MantleError>;
 }
 
-export { type Address, type Affiliate, type AffiliateMembership, type AffiliateMetrics, type AffiliateProgram, type AffiliateReferral, type AffiliateReferralRequest, type AppInstallation, type AppInstallationApp, type AppInstallationSubscription, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type GetAppInstallationsResponse, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type ListAffiliateReferralRequestsResponse, type ListAffiliateReferralsResponse, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type OneTimeCharge, type PaymentMethod, type Plan, type PlatformInvoice, type ProrationBehaviorOptions, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport };
+export { type Address, type Affiliate, type AffiliateMembership, type AffiliateMetrics, type AffiliateProgram, type AffiliateReferral, type AffiliateReferralRequest, type AppInstallation, type AppInstallationApp, type AppInstallationSubscription, type AppliedDiscount, type Checklist, type ChecklistStep, type Contact, type Customer, type Discount, type Feature, type GetAppInstallationsResponse, type HostedSession, type IdentifyResponse, type Invoice, type InvoiceLineItem, type InvoiceUrlResponse, type ListAffiliateReferralRequestsResponse, type ListAffiliateReferralsResponse, type ListInvoicesResponse, MantleClient, type MantleError, type Notify, type OneTimeCharge, type PaymentMethod, type Plan, type PlatformInvoice, type ProrationBehaviorOptions, type RequirePaymentMethodOptions, type Review, type SetupIntent, type Subscription, SubscriptionConfirmType, type SuccessResponse, type UsageCharge, type UsageCredit, type UsageEvent, type UsageMetric, type UsageMetricReport };
